@@ -23,6 +23,12 @@ class Config {
     this.nowChunksZ = 0;
     this.canvasX = 0;
     this.canvasY = 0;
+
+    this.rmenu = false;
+
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.activeChunk = undefined;
   }
 
   persist() {
@@ -53,6 +59,10 @@ class Config {
     }
     this.nowChunksX = this.xChunkCount + 2;
     this.nowChunksZ = this.yChunkCount + 2;
+  }
+
+  get atWaypointChunk() {
+    return !!(this.activeChunk && this.activeChunk.name);
   }
 }
 

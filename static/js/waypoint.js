@@ -57,4 +57,20 @@ async function loadWaypoints(dim) {
     });
 }
 
+function getCurrentChunk(x, z) {
+  const chunkX = Math.floor(
+    config.nowChunkX + (x - config.offsetX) / config.chunkSize
+  );
+  const chunkZ = Math.floor(
+    config.nowChunkZ + (z - config.offsetZ) / config.chunkSize
+  );
+
+  const active = waypoints.filter(p => p.isChunk(chunkX, chunkZ));
+  if (active.length > 0) {
+    return [active[0], chunkX, chunkZ];
+  } else {
+    return [chunkX, chunkZ];
+  }
+}
+
 initWaypoints();

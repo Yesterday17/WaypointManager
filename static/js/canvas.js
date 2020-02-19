@@ -14,28 +14,19 @@ window.onload = window.onresize = function resize() {
 };
 
 function updateWaypointDetail(x, z) {
-  const chunkX = Math.floor(
-    config.nowChunkX + (x - config.offsetX) / config.chunkSize
-  );
-  const chunkZ = Math.floor(
-    config.nowChunkZ + (z - config.offsetZ) / config.chunkSize
-  );
-
-  const active = waypoints.filter(p => p.isChunk(chunkX, chunkZ));
-  if (active.length > 0) {
-    updateWaypointDetailBox(active[0]);
-    showWaypointDetailBox(true);
+  let chunk = getCurrentChunk(x, z);
+  if (chunk.length === 3) {
+    config.activeChunk = chunk[0];
   } else {
     if (config.showCursorInfo) {
-      updateWaypointDetailBox({
-        name: "",
-        x: String(chunkX * 16 + 8),
-        y: "",
-        z: String(chunkZ * 16 + 8)
-      });
+      config.activeChunk = {
+        x: chunk[0] * 16 + 8,
+        z: chunk[1] * 16 + 8
+      };
     }
-    showWaypointDetailBox(!!config.showCursorInfo);
   }
+  updateWaypointDetailBox(config.activeChunk);
+  showWaypointDetailBox(!!config.showCursorInfo);
 }
 
 function updateDrag(x, z) {
@@ -75,12 +66,21 @@ canvas.addEventListener("touchend", event => {
 
 canvas.addEventListener("mousedown", event => {
   event.preventDefault();
-  config.drag = true;
   showWaypointDetailBox(!!config.showCursorInfo);
+  if (!event.altKey) {
+    config.drag = true;
+  }
 });
 
 canvas.addEventListener("mousemove", event => {
+  if (config.rmenu) {
+    return;
+  }
+
   event.preventDefault();
+  config.mouseX = event.x;
+  config.mouseY = event.y;
+  fixCursor(event);
   if (config.drag) {
     updateDrag(event.movementX, event.movementY);
   } else {
@@ -89,11 +89,27 @@ canvas.addEventListener("mousemove", event => {
   }
 });
 
-canvas.addEventListener("mouseup", event => {
+function mouseUp(event) {
   event.preventDefault();
   config.drag = false;
   config.persist();
-});
+
+  const chunk = getCurrentChunk(config.mouseX, config.mouseY);
+  if (chunk.length === 3) {
+    config.activeChunk = chunk[0];
+  } else {
+    config.activeChunk = {
+      x: chunk[0],
+      z: chunk[1]
+    };
+  }
+}
+
+canvas.addEventListener("mouseup", mouseUp);
+
+canvas.addEventListener("mouseleave", mouseUp);
+
+canvas.addEventListener("mouseout", mouseUp);
 
 async function render() {
   // Wait for waypoints
@@ -178,3 +194,32 @@ function chunkText(
   ctx.strokeStyle = backup_stroke;
   ctx.lineWidth = backup_lw;
 }
+
+function fixCursor(event) {
+  if (event.altKey && config.atWaypointChunk) {
+    canvas.style.cursor = "pointer";
+  } else {
+    canvas.style.cursor = "";
+  }
+}
+
+document.addEventListener("keydown", fixCursor);
+
+document.addEventListener("keyup", event => {
+  canvas.style.cursor = "";
+});
+
+canvas.addEventListener("click", event => {
+  if (config.rmenu) {
+    toggleRmenu();
+  }
+  if (event.altKey && config.atWaypointChunk) {
+    event.preventDefault();
+    // TODO: Edit menu
+  }
+});
+
+canvas.addEventListener("contextmenu", event => {
+  event.preventDefault();
+  toggleRmenu();
+});

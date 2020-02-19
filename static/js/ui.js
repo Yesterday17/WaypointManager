@@ -9,7 +9,7 @@ function showWaypointDetailBox(show) {
 }
 
 function updateWaypointDetailBox(p) {
-  if (p.name === "") {
+  if (!p.name || p.name === "") {
     document.getElementById("detail-name").parentNode.classList.add("hide");
     document.getElementById("detail-y").parentNode.classList.add("hide");
   } else {
@@ -43,4 +43,45 @@ function switchDimension() {
 
 function updateDimensionDropdown(dim) {
   document.getElementById("dimension").value = dim;
+}
+
+function toggleRmenu() {
+  if (config.rmenu) {
+    document.getElementById("rmenu").classList.add("hide");
+    document.getElementById("menu-toggle-availbility").classList.add("hide");
+    document.getElementById("menu-edit-color").classList.add("hide");
+    document.getElementById("menu-add-waypoint").classList.add("hide");
+    config.rmenu = false;
+  } else {
+    if (config.atWaypointChunk) {
+      document
+        .getElementById("menu-toggle-availbility")
+        .classList.remove("hide");
+      document.getElementById("menu-edit-color").classList.remove("hide");
+    } else {
+      document.getElementById("menu-add-waypoint").classList.remove("hide");
+    }
+
+    document.getElementById("rmenu").classList.remove("hide");
+    document.getElementById("rmenu").style.top = event.y + "px";
+    document.getElementById("rmenu").style.left = event.x + "px";
+    config.rmenu = true;
+  }
+}
+
+function toggleAvailbility() {
+  //TODO: API
+  toggleRmenu();
+  if (config.atWaypointChunk) {
+    config.activeChunk.available = !config.activeChunk.available;
+    render();
+  }
+}
+
+function editColor() {
+  // TODO
+}
+
+function addWaypoint() {
+  //TODO
 }

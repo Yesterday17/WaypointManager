@@ -5,22 +5,29 @@ body {
   overflow: hidden;
 }
 
-#control {
+#control,
+#detail,
+#rmenu {
   position: absolute;
-  top: 0;
-  right: 0;
   padding: 10px;
   background-color: lightgrey;
   border: 1px solid black;
 }
 
+#control {
+  top: 0;
+  right: 0;
+}
+
 #detail {
-  position: absolute;
   bottom: 0;
   right: 0;
-  padding: 10px;
-  background-color: lightgrey;
-  border: 1px solid black;
+}
+
+#rmenu,
+#rmenu > div,
+#rmenu > div > button {
+  padding: 0;
 }
 
 .hide {
