@@ -115,43 +115,47 @@ async function render() {
   }
 
   // Waypoints
-  waypointsToDraw.forEach(p =>
-    // chunk(p.i, p.j, p.waypoint.color, `(${p.waypoint.x}, ${p.waypoint.z})`)
-    chunk(p.i, p.j, p.waypoint.color, p.waypoint.name)
-  );
+  waypointsToDraw.forEach(p => {
+    chunk(p.i, p.j, p.waypoint.color, true);
+    chunkText(p.i, p.j, p.waypoint.name, p.waypoint.available);
+  });
 }
 
-function chunk(
-  x,
-  z,
-  color = "white",
-  text = "",
-  textColor = "white",
-  textStrokeColor = "black"
-) {
+function chunk(x, z, color = "white", isTextChunk = false) {
   ctx.fillStyle = color;
   ctx.strokeRect(
     config.offsetX + x * config.chunkSize,
     config.offsetZ + z * config.chunkSize,
-    config.chunkSize - (text === "" ? 0 : 1),
-    config.chunkSize - (text === "" ? 0 : 1)
+    config.chunkSize - isTextChunk,
+    config.chunkSize - isTextChunk
   );
   ctx.fillRect(
     config.offsetX + x * config.chunkSize,
     config.offsetZ + z * config.chunkSize,
-    config.chunkSize - (text === "" ? 0 : 1),
-    config.chunkSize - (text === "" ? 0 : 1)
+    config.chunkSize - isTextChunk,
+    config.chunkSize - isTextChunk
   );
+}
 
-  if (text !== "") {
-    let s = ctx.strokeStyle;
-    let lw = ctx.lineWidth;
-    ctx.lineWidth = 3;
-    ctx.font = "24px Monospace";
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "center";
-    ctx.fillStyle = textColor;
-    ctx.strokeStyle = textStrokeColor;
+function chunkText(
+  x,
+  z,
+  text = "",
+  available,
+  textColor = "white",
+  textStrokeColor = "black"
+) {
+  let backup_stroke = ctx.strokeStyle;
+  let backup_lw = ctx.lineWidth;
+
+  ctx.lineWidth = 3;
+  ctx.font = "24px Monospace";
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+  ctx.fillStyle = textColor;
+  ctx.strokeStyle = textStrokeColor;
+
+  if (available) {
     ctx.strokeText(
       text,
       config.offsetX + x * config.chunkSize + config.chunkSize / 2,
@@ -162,7 +166,8 @@ function chunk(
       config.offsetX + x * config.chunkSize + config.chunkSize / 2,
       config.offsetZ + z * config.chunkSize + config.chunkSize / 2
     );
-    ctx.strokeStyle = s;
-    ctx.lineWidth = lw;
   }
+
+  ctx.strokeStyle = backup_stroke;
+  ctx.lineWidth = backup_lw;
 }

@@ -1,11 +1,12 @@
 // Waypoint
 class Waypoint {
-  constructor(name, x, y, z, color) {
+  constructor(name, x, y, z, color, available) {
     this.name = name;
     this.x = x;
     this.y = y;
     this.z = z;
     this.color = color;
+    this.available = available;
   }
 
   isChunk(x, z) {
@@ -27,7 +28,9 @@ async function loadWaypoints() {
     .then(arr => {
       waypoints.splice(waypoints.length);
       waypoints.push(
-        ...arr.map(p => new Waypoint(p.name, p.x, p.y, p.z, p.color))
+        ...arr.map(
+          p => new Waypoint(p.name, p.x, p.y, p.z, p.color, p.available)
+        )
       );
     });
 }

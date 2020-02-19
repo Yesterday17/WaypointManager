@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,15 +19,16 @@ const (
 )
 
 type Waypoint struct {
-	Name  string `json:"name"`
-	X     int    `json:"x"`
-	Y     int    `json:"y"`
-	Z     int    `json:"z"`
-	Color string `json:"color"`
+	Name      string `json:"name"`
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	Z         int    `json:"z"`
+	Color     string `json:"color"`
+	Available bool   `json:"available"`
 }
 
 func (w Waypoint) String() string {
-	return w.Name + strconv.Itoa(w.X) + strconv.Itoa(w.Y) + strconv.Itoa(w.Z) + w.Color
+	return fmt.Sprintf("%d-%d-%d", w.X/16, w.Y/16, w.Z/16)
 }
 
 func (w Waypoint) Valid() bool {
@@ -89,12 +91,23 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 		return Waypoint{}, err
 	}
 
+	var available = true
+	if f.Get("available") == "false" {
+		available = false
+	} else {
+		a, err := strconv.Atoi(f.Get("available"))
+		if err == nil && a == 0 {
+			available = false
+		}
+	}
+
 	wp := Waypoint{
-		Name:  f.Get("name"),
-		X:     x,
-		Y:     y,
-		Z:     z,
-		Color: f.Get("color"),
+		Name:      f.Get("name"),
+		X:         x,
+		Y:         y,
+		Z:         z,
+		Color:     f.Get("color"),
+		Available: available,
 	}
 
 	if !wp.Valid() {
