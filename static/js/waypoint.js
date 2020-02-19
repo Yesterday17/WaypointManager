@@ -23,7 +23,8 @@ const waypoints = [];
 let waypointPromise = loadWaypoints();
 
 async function loadWaypoints() {
-  return fetch("api/get")
+  const dim = loadNumberFromPersist("dim", 0);
+  return fetch(`dimension/${dim}`)
     .then(d => d.json())
     .then(arr => {
       waypoints.splice(waypoints.length);

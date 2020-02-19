@@ -4,18 +4,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 )
 
 const (
-	WaypointFile = "waypoints.json"
-	StaticFolder = "static"
+	WaypointFolder = "waypoints"
+	StaticFolder   = "static"
 )
 
 type Waypoint struct {
@@ -53,23 +55,28 @@ func SerializeWaypoints(m sync.Map) []byte {
 }
 
 func LoadWaypoints(file string) (result sync.Map) {
-	w := []Waypoint{}
-	data, err := ioutil.ReadFile(file)
-	if err == nil {
-		err = json.Unmarshal(data, &w)
-		if err != nil {
+	var w []Waypoint
+	data, err := ioutil.ReadFile(filepath.Join(WaypointFolder, file))
+	if err != nil {
+		if os.IsNotExist(err) {
+			w = []Waypoint{}
+		} else {
 			log.Panic(err)
 		}
+	}
+	err = json.Unmarshal(data, &w)
+	if err != nil {
+		log.Panic(err)
+	}
 
-		for _, v := range w {
-			result.Store(v.String(), v)
-		}
+	for _, v := range w {
+		result.Store(v.String(), v)
 	}
 	return
 }
 
 func SaveWaypoints(file string, m sync.Map) {
-	err := ioutil.WriteFile(file, SerializeWaypoints(m), 0644)
+	err := ioutil.WriteFile(filepath.Join(WaypointFolder, file+".json"), SerializeWaypoints(m), 0644)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -122,17 +129,37 @@ func main() {
 	}
 
 	auth := os.Args[1]
-	waypoints := LoadWaypoints(WaypointFile)
+	dimensions := map[string]sync.Map{}
+	infos, err := ioutil.ReadDir(WaypointFolder)
+	if err != nil {
+		log.Panic(err)
+	}
+	for _, info := range infos {
+		if !info.IsDir() && filepath.Ext(info.Name()) == ".json" {
+			dimensions[info.Name()[0:len(info.Name())-5]] = LoadWaypoints(info.Name())
+		}
+	}
 
-	http.HandleFunc("/api/get", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		_, _ = w.Write(SerializeWaypoints(waypoints))
+	router := httprouter.New()
+	router.GET("/dimension", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data, _ := json.Marshal(dimensions)
+		fmt.Fprintf(w, "%s", data)
 	})
-
-	http.HandleFunc("/api/add", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			w.WriteHeader(405)
-			return
+	router.GET("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		dim := ps.ByName("dim")
+		waypoints, ok := dimensions[dim]
+		if ok {
+			fmt.Fprintf(w, "%s", SerializeWaypoints(waypoints))
+		} else {
+			fmt.Fprintf(w, "[]")
+		}
+	})
+	router.POST("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		dim := ps.ByName("dim")
+		waypoints, ok := dimensions[dim]
+		if !ok {
+			waypoints = sync.Map{}
+			dimensions[dim] = waypoints
 		}
 		if r.Header.Get("WaypointAuth") != auth {
 			w.WriteHeader(401)
@@ -142,13 +169,13 @@ func main() {
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(500)
-			_, _ = w.Write([]byte(err.Error()))
+			fmt.Fprintf(w, "%s", err.Error())
 		}
 
 		wp, err := GenWaypointByForm(r.Form)
 		if err != nil {
 			w.WriteHeader(400)
-			_, _ = w.Write([]byte(err.Error()))
+			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
 
@@ -158,15 +185,16 @@ func main() {
 		}
 
 		waypoints.Store(wp.String(), wp)
-		SaveWaypoints(WaypointFile, waypoints)
-		w.WriteHeader(200)
+		SaveWaypoints(dim, waypoints)
 	})
-
-	http.HandleFunc("/api/del", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			w.WriteHeader(405)
+	router.DELETE("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		dim := ps.ByName("dim")
+		waypoints, ok := dimensions[dim]
+		if !ok {
+			w.WriteHeader(400)
 			return
 		}
+
 		if r.Header.Get("WaypointAuth") != auth {
 			w.WriteHeader(401)
 			return
@@ -175,13 +203,13 @@ func main() {
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(500)
-			_, _ = w.Write([]byte(err.Error()))
+			fmt.Fprintf(w, "%s", err.Error())
 		}
 
 		wp, err := GenWaypointByForm(r.Form)
 		if err != nil {
 			w.WriteHeader(400)
-			_, _ = w.Write([]byte(err.Error()))
+			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
 
@@ -191,13 +219,47 @@ func main() {
 		}
 
 		waypoints.Delete(wp.String())
-		SaveWaypoints(WaypointFile, waypoints)
+		SaveWaypoints(dim, waypoints)
 		w.WriteHeader(200)
 	})
+	router.PATCH("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		dim := ps.ByName("dim")
+		waypoints, ok := dimensions[dim]
+		if !ok {
+			w.WriteHeader(400)
+			return
+		}
 
-	http.Handle("/", http.FileServer(http.Dir(StaticFolder)))
+		if r.Header.Get("WaypointAuth") != auth {
+			w.WriteHeader(401)
+			return
+		}
 
-	if err := http.ListenAndServe(":8102", nil); err != nil {
-		log.Panic(err)
-	}
+		err := r.ParseForm()
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Fprintf(w, "%s", err.Error())
+		}
+
+		wp, err := GenWaypointByForm(r.Form)
+		if err != nil {
+			w.WriteHeader(400)
+			fmt.Fprintf(w, "%s", err.Error())
+			return
+		}
+
+		if _, ok := waypoints.Load(wp.String()); !ok {
+			w.WriteHeader(500)
+			return
+		}
+
+		waypoints.Delete(wp.String())
+		waypoints.Store(wp.String(), wp)
+		SaveWaypoints(dim, waypoints)
+		w.WriteHeader(200)
+	})
+	router.NotFound = http.FileServer(http.Dir(StaticFolder))
+
+	fmt.Println("Server listening on :8102")
+	log.Fatal(http.ListenAndServe(":8102", router))
 }
