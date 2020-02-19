@@ -16,10 +16,10 @@ window.onload = window.onresize = function resize() {
 };
 
 function updateWaypointDetail(x, z) {
-  const chunkX = parseInt(
+  const chunkX = Math.floor(
     config.nowChunkX + (x - config.offsetX) / config.chunkSize
   );
-  const chunkZ = parseInt(
+  const chunkZ = Math.floor(
     config.nowChunkZ + (z - config.offsetZ) / config.chunkSize
   );
 

@@ -51,7 +51,7 @@ func SerializeWaypoints(m sync.Map) []byte {
 }
 
 func LoadWaypoints(file string) (result sync.Map) {
-	var w []Waypoint
+	w := []Waypoint{}
 	data, err := ioutil.ReadFile(file)
 	if err == nil {
 		err = json.Unmarshal(data, &w)
@@ -164,7 +164,7 @@ func main() {
 			w.WriteHeader(500)
 			_, _ = w.Write([]byte(err.Error()))
 		}
-		
+
 		wp, err := GenWaypointByForm(r.Form)
 		if err != nil {
 			w.WriteHeader(400)
