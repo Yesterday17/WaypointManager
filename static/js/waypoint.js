@@ -20,14 +20,35 @@ class Waypoint {
 }
 
 const waypoints = [];
-let waypointPromise = loadWaypoints();
+let waypointPromise;
 
-async function loadWaypoints() {
-  const dim = loadNumberFromPersist("dim", 0);
+async function initWaypoints() {
+  waypointPromise = fetch("dimension")
+    .then(d => d.json())
+    .then(j => {
+      let dim = loadStringFromPersist("dim", "0");
+      if (!j.includes(dim)) {
+        dim = "0";
+      }
+
+      const dropdown = document.getElementById("dimension");
+      j.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = String(id);
+        opt.innerText = String(id);
+        dropdown.appendChild(opt);
+      });
+      return dim;
+    })
+    .then(dim => loadWaypoints(dim));
+}
+
+async function loadWaypoints(dim) {
+  updateDimensionDropdown(dim);
   return fetch(`dimension/${dim}`)
     .then(d => d.json())
     .then(arr => {
-      waypoints.splice(waypoints.length);
+      waypoints.splice(0, waypoints.length);
       waypoints.push(
         ...arr.map(
           p => new Waypoint(p.name, p.x, p.y, p.z, p.color, p.available)
@@ -35,3 +56,5 @@ async function loadWaypoints() {
       );
     });
 }
+
+initWaypoints();

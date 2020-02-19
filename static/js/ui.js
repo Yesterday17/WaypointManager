@@ -29,3 +29,14 @@ function adjustScale(diff) {
 document.addEventListener("wheel", event => {
   adjustScale(0.1 * (event.deltaY > 0 ? -1 : 1));
 });
+
+function switchDimension() {
+  const dim = document.getElementById("dimension").value;
+  persist("dim", dim);
+  waypointPromise.then(loadWaypoints(dim));
+  render();
+}
+
+function updateDimensionDropdown(dim) {
+  document.getElementById("dimension").value = dim;
+}

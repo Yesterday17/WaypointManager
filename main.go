@@ -30,7 +30,7 @@ type Waypoint struct {
 }
 
 func (w Waypoint) String() string {
-	return fmt.Sprintf("%d-%d-%d", w.X/16, w.Y/16, w.Z/16)
+	return fmt.Sprintf("%d/%d/%d", w.X/16, w.Y/16, w.Z/16)
 }
 
 func (w Waypoint) Valid() bool {
@@ -142,7 +142,11 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/dimension", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		data, _ := json.Marshal(dimensions)
+		var arr []string
+		for key, _ := range dimensions {
+			arr = append(arr, key)
+		}
+		data, _ := json.Marshal(arr)
 		fmt.Fprintf(w, "%s", data)
 	})
 	router.GET("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -159,7 +163,6 @@ func main() {
 		waypoints, ok := dimensions[dim]
 		if !ok {
 			waypoints = sync.Map{}
-			dimensions[dim] = waypoints
 		}
 		if r.Header.Get("WaypointAuth") != auth {
 			w.WriteHeader(401)
@@ -186,6 +189,9 @@ func main() {
 
 		waypoints.Store(wp.String(), wp)
 		SaveWaypoints(dim, waypoints)
+		if !ok {
+			dimensions[dim] = waypoints
+		}
 	})
 	router.DELETE("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
