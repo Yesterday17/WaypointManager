@@ -22,6 +22,10 @@ function updateWaypointDetailBox(p) {
 function adjustScale(diff) {
   config.scale += diff;
   config.recalculateNowChunks();
-  persist();
+  config.persist();
   render();
 }
+
+document.addEventListener("wheel", event => {
+  adjustScale(0.1 * (event.deltaY > 0 ? -1 : 1));
+});

@@ -48,11 +48,6 @@ function updateDrag(x, z) {
   render();
 }
 
-canvas.addEventListener("mousedown", event => {
-  config.drag = true;
-  showWaypointDetailBox(false);
-});
-
 let prevTouch;
 function touchMove(touch) {
   updateDrag(touch.pageX - prevTouch.pageX, touch.pageY - prevTouch.pageY);
@@ -72,6 +67,11 @@ canvas.addEventListener("touchmove", event => {
 canvas.addEventListener("touchend", event => {
   event.preventDefault();
   config.persist();
+});
+
+canvas.addEventListener("mousedown", event => {
+  config.drag = true;
+  showWaypointDetailBox(false);
 });
 
 canvas.addEventListener("mousemove", event => {
