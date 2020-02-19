@@ -1,8 +1,4 @@
 // UI-related code
-function updateULChunkXZ(x, z) {
-  document.getElementById("ul-chunk-xz").innerText = `X: ${x}, Z: ${z}`;
-}
-
 function showWaypointDetailBox(show) {
   const detail = document.getElementById("detail");
   if (show) {

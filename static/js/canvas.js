@@ -10,8 +10,6 @@ window.onload = window.onresize = function resize() {
   canvas.height = config.canvasY = window.innerHeight;
 
   config.recalculateNowChunks();
-
-  updateULChunkXZ(config.nowChunkX * 16, config.nowChunkZ * 16);
   render();
 };
 
@@ -50,8 +48,6 @@ function updateDrag(x, z) {
 
   config.nowChunkZ -= parseInt(config.offsetZ / config.chunkSize);
   config.offsetZ = config.offsetZ % config.chunkSize;
-
-  updateULChunkXZ(config.nowChunkX * 16, config.nowChunkZ * 16);
 
   render();
 }
