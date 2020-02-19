@@ -33,7 +33,7 @@ document.addEventListener("wheel", event => {
 function switchDimension() {
   const dim = document.getElementById("dimension").value;
   persist("dim", dim);
-  waypointPromise.then(loadWaypoints(dim));
+  waypointPromise = loadWaypoints(dim);
   render();
 }
 

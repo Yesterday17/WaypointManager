@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -50,8 +49,12 @@ func Map2Slice(m sync.Map) []Waypoint {
 
 func SerializeWaypoints(m sync.Map) []byte {
 	s := Map2Slice(m)
-	data, _ := json.Marshal(s)
-	return data
+	if s != nil {
+		data, _ := json.Marshal(s)
+		return data
+	} else {
+		return []byte("[]")
+	}
 }
 
 func LoadWaypoints(file string) (result sync.Map) {
@@ -116,10 +119,6 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 		Color:     f.Get("color"),
 		Available: available,
 	}
-
-	if !wp.Valid() {
-		return Waypoint{}, errors.New("invalid waypoint")
-	}
 	return wp, nil
 }
 
@@ -181,6 +180,11 @@ func main() {
 			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
+		if !wp.Valid() {
+			w.WriteHeader(400)
+			fmt.Fprintf(w, "invalid waypoint")
+			return
+		}
 
 		if _, ok := waypoints.Load(wp.String()); ok {
 			w.WriteHeader(500)
@@ -206,6 +210,8 @@ func main() {
 			return
 		}
 
+		//FIXME: dirty hack
+		r.Method = "PUT"
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(500)
@@ -251,6 +257,11 @@ func main() {
 		if err != nil {
 			w.WriteHeader(400)
 			fmt.Fprintf(w, "%s", err.Error())
+			return
+		}
+		if !wp.Valid() {
+			w.WriteHeader(400)
+			fmt.Fprintf(w, "invalid waypoint")
 			return
 		}
 
