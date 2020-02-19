@@ -45,6 +45,11 @@ class Config {
   }
 
   recalculateNowChunks() {
+    if (this.xChunkCount > 50 || this.yChunkCount > 50) {
+      this.scale += 0.1;
+    } else if (this.xChunkCount < 3 || this.yChunkCount < 3) {
+      this.scale -= 0.1;
+    }
     this.nowChunksX = this.xChunkCount + 2;
     this.nowChunksZ = this.yChunkCount + 2;
   }
