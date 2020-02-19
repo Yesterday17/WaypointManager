@@ -1,0 +1,28 @@
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+#control {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+  background-color: lightgrey;
+  border: 1px solid black;
+}
+
+#detail {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  background-color: lightgrey;
+  border: 1px solid black;
+}
+
+.hide {
+  display: none;
+}

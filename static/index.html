@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Waypoint Manager</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <canvas></canvas>
+    <div id="control">
+      <div>
+        <span>UL chunk: </span>
+        <br />
+        <span id="ul-chunk-xz">X: 114, Z: 514</span>
+      </div>
+      <br />
+      <div>
+        <span>Scale: </span>
+        <input type="button" value="+" onclick="adjustScale(0.1)" />
+        <input type="button" value="-" onclick="adjustScale(-0.1)" />
+      </div>
+    </div>
+    <div id="detail" class="hide">
+      <div><span>Name: </span><span id="detail-name"></span></div>
+      <div><span>X: </span><span id="detail-x"></span></div>
+      <div><span>Y: </span><span id="detail-y"></span></div>
+      <div><span>Z: </span><span id="detail-z"></span></div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/waypoint.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/canvas.js"></script>
+  </body>
+</html>
