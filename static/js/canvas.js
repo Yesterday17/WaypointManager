@@ -28,7 +28,15 @@ function updateWaypointDetail(x, z) {
     updateWaypointDetailBox(active[0]);
     showWaypointDetailBox(true);
   } else {
-    showWaypointDetailBox(false);
+    if (config.showCursorInfo) {
+      updateWaypointDetailBox({
+        name: "",
+        x: String(chunkX * 16 + 8),
+        y: "",
+        z: String(chunkZ * 16 + 8)
+      });
+    }
+    showWaypointDetailBox(!!config.showCursorInfo);
   }
 }
 
@@ -70,11 +78,13 @@ canvas.addEventListener("touchend", event => {
 });
 
 canvas.addEventListener("mousedown", event => {
+  event.preventDefault();
   config.drag = true;
-  showWaypointDetailBox(false);
+  showWaypointDetailBox(!!config.showCursorInfo);
 });
 
 canvas.addEventListener("mousemove", event => {
+  event.preventDefault();
   if (config.drag) {
     updateDrag(event.movementX, event.movementY);
   } else {
@@ -84,6 +94,7 @@ canvas.addEventListener("mousemove", event => {
 });
 
 canvas.addEventListener("mouseup", event => {
+  event.preventDefault();
   config.drag = false;
   config.persist();
 });

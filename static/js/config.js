@@ -15,6 +15,7 @@ class Config {
       this.offsetZ = loadNumberFromPersist("offsetZ", 0);
       this.nowChunkX = loadNumberFromPersist("nowChunkX", 0);
       this.nowChunkZ = loadNumberFromPersist("nowChunkZ", 0);
+      this.showCursorInfo = loadNumberFromPersist("showCursorInfo", 1);
     }
 
     this.drag = false;

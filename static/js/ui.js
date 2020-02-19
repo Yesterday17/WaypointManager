@@ -13,6 +13,14 @@ function showWaypointDetailBox(show) {
 }
 
 function updateWaypointDetailBox(p) {
+  if (p.name === "") {
+    document.getElementById("detail-name").parentNode.classList.add("hide");
+    document.getElementById("detail-y").parentNode.classList.add("hide");
+  } else {
+    document.getElementById("detail-name").parentNode.classList.remove("hide");
+    document.getElementById("detail-y").parentNode.classList.remove("hide");
+  }
+
   document.getElementById("detail-name").innerText = p.name;
   document.getElementById("detail-x").innerText = p.x;
   document.getElementById("detail-y").innerText = p.y;
