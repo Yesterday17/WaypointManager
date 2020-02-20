@@ -3,3 +3,4 @@ waypoints.json
 .idea
 
 WaypointManager
+*.tar.gz

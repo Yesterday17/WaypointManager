@@ -210,27 +210,18 @@ func main() {
 			return
 		}
 
-		//FIXME: dirty hack
-		r.Method = "PUT"
-		err := r.ParseForm()
-		if err != nil {
-			w.WriteHeader(500)
-			fmt.Fprintf(w, "%s", err.Error())
-		}
-
-		wp, err := GenWaypointByForm(r.Form)
-		if err != nil {
+		identifier := r.Header.Get("Waypoint-Identifier")
+		if identifier == "" {
 			w.WriteHeader(400)
-			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
 
-		if _, ok := waypoints.Load(wp.String()); !ok {
+		if _, ok := waypoints.Load(identifier); !ok {
 			w.WriteHeader(500)
 			return
 		}
 
-		waypoints.Delete(wp.String())
+		waypoints.Delete(identifier)
 		SaveWaypoints(dim, waypoints)
 		w.WriteHeader(200)
 	})
@@ -247,31 +238,43 @@ func main() {
 			return
 		}
 
+		identifier := r.Header.Get("Waypoint-Identifier")
+		if identifier == "" {
+			w.WriteHeader(400)
+			return
+		}
+
+		if _, ok := waypoints.Load(identifier); !ok {
+			w.WriteHeader(500)
+			return
+		}
+
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(500)
 			fmt.Fprintf(w, "%s", err.Error())
-		}
-
-		wp, err := GenWaypointByForm(r.Form)
-		if err != nil {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "%s", err.Error())
-			return
-		}
-		if !wp.Valid() {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "invalid waypoint")
 			return
 		}
 
-		if _, ok := waypoints.Load(wp.String()); !ok {
-			w.WriteHeader(500)
+		wp, ok := waypoints.Load(identifier)
+		if !ok {
+			w.WriteHeader(404)
 			return
 		}
 
-		waypoints.Delete(wp.String())
-		waypoints.Store(wp.String(), wp)
+		waypoints.Delete(identifier)
+		var waypoint = wp.(Waypoint)
+		if r.Form.Get("name") != "" {
+			waypoint.Name = r.Form.Get("name")
+		}
+		if r.Form.Get("available") != "" {
+			waypoint.Available = r.Form.Get("available")
+		}
+		if r.Form.Get("color") != "" {
+			waypoint.Color = r.Form.Get("color")
+		}
+
+		waypoints.Store(identifier, waypoint)
 		SaveWaypoints(dim, waypoints)
 		w.WriteHeader(200)
 	})
