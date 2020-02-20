@@ -36,7 +36,7 @@ func (w Waypoint) Valid() bool {
 	return w.Name != "" && w.Color != ""
 }
 
-func Map2Slice(m sync.Map) []Waypoint {
+func Map2Slice(m *sync.Map) []Waypoint {
 	var s []Waypoint
 	m.Range(func(k, v interface{}) bool {
 		//key := k.(string)
@@ -47,7 +47,7 @@ func Map2Slice(m sync.Map) []Waypoint {
 	return s
 }
 
-func SerializeWaypoints(m sync.Map) []byte {
+func SerializeWaypoints(m *sync.Map) []byte {
 	s := Map2Slice(m)
 	if s != nil {
 		data, _ := json.Marshal(s)
@@ -57,7 +57,7 @@ func SerializeWaypoints(m sync.Map) []byte {
 	}
 }
 
-func LoadWaypoints(file string) (result sync.Map) {
+func LoadWaypoints(file string) *sync.Map {
 	var w []Waypoint
 	data, err := ioutil.ReadFile(filepath.Join(WaypointFolder, file))
 	if err != nil {
@@ -72,13 +72,14 @@ func LoadWaypoints(file string) (result sync.Map) {
 		log.Panic(err)
 	}
 
+	var result sync.Map
 	for _, v := range w {
 		result.Store(v.String(), v)
 	}
-	return
+	return &result
 }
 
-func SaveWaypoints(file string, m sync.Map) {
+func SaveWaypoints(file string, m *sync.Map) {
 	err := ioutil.WriteFile(filepath.Join(WaypointFolder, file+".json"), SerializeWaypoints(m), 0644)
 	if err != nil {
 		log.Panic(err)
@@ -128,7 +129,7 @@ func main() {
 	}
 
 	auth := os.Args[1]
-	dimensions := map[string]sync.Map{}
+	dimensions := map[string]*sync.Map{}
 	infos, err := ioutil.ReadDir(WaypointFolder)
 	if err != nil {
 		log.Panic(err)
@@ -161,7 +162,8 @@ func main() {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
 		if !ok {
-			waypoints = sync.Map{}
+			waypoints = &sync.Map{}
+			dimensions[dim] = waypoints
 		}
 		if r.Header.Get("WaypointAuth") != auth {
 			w.WriteHeader(401)
@@ -188,14 +190,12 @@ func main() {
 
 		if _, ok := waypoints.Load(wp.String()); ok {
 			w.WriteHeader(500)
+			w.Write([]byte("waypoint already exists"))
 			return
 		}
 
 		waypoints.Store(wp.String(), wp)
 		SaveWaypoints(dim, waypoints)
-		if !ok {
-			dimensions[dim] = waypoints
-		}
 	})
 	router.DELETE("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")

@@ -171,8 +171,12 @@ function chunkText(
   let backup_stroke = ctx.strokeStyle;
   let backup_lw = ctx.lineWidth;
 
-  ctx.lineWidth = 3;
-  ctx.font = "24px Monospace";
+  if (config.scale < 1) {
+    ctx.lineWidth = 1.5;
+  } else {
+    ctx.lineWidth = 3;
+  }
+  ctx.font = String(parseInt(16 * config.scale)) + "px Monospace";
   ctx.textBaseline = "middle";
   ctx.textAlign = "center";
   ctx.fillStyle = textColor;
