@@ -36,13 +36,13 @@ document.addEventListener("wheel", event => {
 
 function switchDimension() {
   const dim = document.getElementById("dimension").value;
-  persist("dim", dim);
   waypointPromise = loadWaypoints(dim);
+  config.persist();
   render();
 }
 
-function updateDimensionDropdown(dim) {
-  document.getElementById("dimension").value = dim;
+function updateDimensionDropdown() {
+  document.getElementById("dimension").value = config.dim;
 }
 
 function toggleRmenu() {
@@ -70,7 +70,15 @@ function toggleRmenu() {
 }
 
 function toggleAvailbility() {
-  //TODO: API
+  fetch(`dimension/${config.dim}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      WaypointAuth: config.auth,
+      "Waypoint-Identifier": config.activeChunk.identifier
+    },
+    body: `available=${!config.activeChunk.available}`
+  });
   toggleRmenu();
   if (config.atWaypointChunk) {
     config.activeChunk.available = !config.activeChunk.available;
@@ -80,8 +88,10 @@ function toggleAvailbility() {
 
 function editColor() {
   // TODO
+  toggleRmenu();
 }
 
 function addWaypoint() {
   //TODO
+  toggleRmenu();
 }

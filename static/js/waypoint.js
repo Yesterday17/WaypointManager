@@ -17,6 +17,12 @@ class Waypoint {
       this.z < (z + 1) * 16
     );
   }
+
+  get identifier() {
+    return `${parseInt(this.x / 16)}/${parseInt(this.y / 16)}/${parseInt(
+      this.z / 16
+    )}`;
+  }
 }
 
 const waypoints = [];
@@ -26,9 +32,8 @@ async function initWaypoints() {
   waypointPromise = fetch("dimension")
     .then(d => d.json())
     .then(j => {
-      let dim = loadStringFromPersist("dim", "0");
-      if (!j.includes(dim)) {
-        dim = "0";
+      if (!j.includes(config.dim)) {
+        config.dim = "0";
       }
 
       const dropdown = document.getElementById("dimension");
@@ -38,14 +43,13 @@ async function initWaypoints() {
         opt.innerText = String(id);
         dropdown.appendChild(opt);
       });
-      return dim;
     })
-    .then(dim => loadWaypoints(dim));
+    .then(loadWaypoints);
 }
 
-async function loadWaypoints(dim) {
-  updateDimensionDropdown(dim);
-  return fetch(`dimension/${dim}`)
+async function loadWaypoints() {
+  updateDimensionDropdown();
+  return fetch(`dimension/${config.dim}`)
     .then(d => d.json())
     .then(arr => {
       waypoints.splice(0, waypoints.length);

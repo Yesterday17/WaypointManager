@@ -9,13 +9,18 @@ class Config {
       this.offsetZ = 0;
       this.nowChunkX = 0;
       this.nowChunkZ = 0;
+      this.dim = "0";
+      this.showCursorInfo = 1;
+      this.auth = "";
     } else {
       this.scale = loadNumberFromPersist("scale", 1);
       this.offsetX = loadNumberFromPersist("offsetX", 0);
       this.offsetZ = loadNumberFromPersist("offsetZ", 0);
       this.nowChunkX = loadNumberFromPersist("nowChunkX", 0);
       this.nowChunkZ = loadNumberFromPersist("nowChunkZ", 0);
+      this.dim = loadStringFromPersist("dim", "0");
       this.showCursorInfo = loadNumberFromPersist("showCursorInfo", 1);
+      this.auth = loadStringFromPersist("auth", "");
     }
 
     this.drag = false;
@@ -37,6 +42,8 @@ class Config {
     persist("offsetZ", this.offsetZ);
     persist("nowChunkX", this.nowChunkX);
     persist("nowChunkZ", this.nowChunkZ);
+    persist("dim", this.dim);
+    persist("auth", this.auth);
   }
 
   get chunkSize() {
