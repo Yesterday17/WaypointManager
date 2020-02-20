@@ -86,6 +86,11 @@ func SaveWaypoints(file string, m *sync.Map) {
 	}
 }
 
+func GetBoolFromString(str string) bool {
+	a, err := strconv.Atoi(str)
+	return err != nil || a == 0
+}
+
 func GenWaypointByForm(f url.Values) (Waypoint, error) {
 	x, err := strconv.Atoi(f.Get("x"))
 	if err != nil {
@@ -106,10 +111,7 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 	if f.Get("available") == "false" {
 		available = false
 	} else {
-		a, err := strconv.Atoi(f.Get("available"))
-		if err == nil && a == 0 {
-			available = false
-		}
+		available = GetBoolFromString(f.Get("available"))
 	}
 
 	wp := Waypoint{
@@ -268,7 +270,13 @@ func main() {
 			waypoint.Name = r.Form.Get("name")
 		}
 		if r.Form.Get("available") != "" {
-			waypoint.Available = r.Form.Get("available")
+			var available = true
+			if r.Form.Get("available") == "false" {
+				available = false
+			} else {
+				available = GetBoolFromString(r.Form.Get("available"))
+			}
+			waypoint.Available = available
 		}
 		if r.Form.Get("color") != "" {
 			waypoint.Color = r.Form.Get("color")
