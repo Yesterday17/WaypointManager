@@ -214,7 +214,7 @@ canvas.addEventListener("click", event => {
     event.preventDefault();
     if (config.auth === "") {
       config.auth = prompt("Please input server auth:", "");
-      if (config.auth === "") {
+      if (config.auth === "" || config.auth === null) {
         alert("Invalid auth.");
         return;
       }
