@@ -7,6 +7,11 @@ function showWaypointDetailBox(toShow) {
   }
 }
 
+function showWaypointEditBox() {
+  show("edit");
+  // TODO
+}
+
 function updateWaypointDetailBox(p) {
   if (!p.name || p.name === "") {
     hideParent("detail-name");

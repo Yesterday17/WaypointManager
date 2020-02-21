@@ -7,7 +7,8 @@ body {
 
 #control,
 #detail,
-#rmenu {
+#rmenu,
+#edit {
   position: absolute;
   padding: 10px;
   background-color: rgb(28, 28, 28, 0.8);
@@ -37,9 +38,21 @@ body {
   background-color: rgba(120, 120, 120, 0.8);
 }
 
+#edit {
+  top: 0;
+}
+
+#edit > div {
+  text-align: right;
+}
+
+#edit > .submit {
+  text-align: center;
+}
+
 select,
 button,
-input[type="button"] {
+input {
   border: none;
   background-color: transparent;
   padding: 0;
@@ -51,6 +64,14 @@ input[type="button"] {
   line-height: inherit;
 }
 
+input[type="text"] {
+  border-bottom: 1px solid white;
+}
+
 .hide {
   display: none;
+}
+
+.smail {
+  font-size: smaller;
 }
