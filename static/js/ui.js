@@ -1,20 +1,19 @@
 // UI-related code
-function showWaypointDetailBox(show) {
-  const detail = document.getElementById("detail");
-  if (show) {
-    detail.classList.remove("hide");
+function showWaypointDetailBox(toShow) {
+  if (toShow) {
+    show("detail");
   } else {
-    detail.classList.add("hide");
+    hide("detail");
   }
 }
 
 function updateWaypointDetailBox(p) {
   if (!p.name || p.name === "") {
-    document.getElementById("detail-name").parentNode.classList.add("hide");
-    document.getElementById("detail-y").parentNode.classList.add("hide");
+    hideParent("detail-name");
+    hideParent("detail-y");
   } else {
-    document.getElementById("detail-name").parentNode.classList.remove("hide");
-    document.getElementById("detail-y").parentNode.classList.remove("hide");
+    showParent("detail-name");
+    showParent("detail-y");
   }
 
   document.getElementById("detail-name").innerText = p.name;
@@ -59,34 +58,40 @@ function updateDimensionDropdown() {
   document.getElementById("dimension").value = config.dim;
 }
 
+function hide(id) {
+  document.getElementById(id).classList.add("hide");
+}
+
+function hideParent(id) {
+  document.getElementById(id).parentElement.classList.add("hide");
+}
+
+function show(id) {
+  document.getElementById(id).classList.remove("hide");
+}
+
+function showParent(id) {
+  document.getElementById(id).parentElement.classList.remove("hide");
+}
+
 function toggleRmenu() {
   if (config.rmenu) {
-    document.getElementById("rmenu").classList.add("hide");
-    document
-      .getElementById("menu-toggle-availability")
-      .parentElement.classList.add("hide");
-    document
-      .getElementById("menu-edit-name")
-      .parentElement.classList.add("hide");
-    document
-      .getElementById("menu-add-waypoint")
-      .parentElement.classList.add("hide");
+    hide("rmenu");
+    hideParent("menu-toggle-availability");
+    hideParent("menu-edit-name");
+    hideParent("menu-add-waypoint");
+    hideParent("menu-random-color");
     config.rmenu = false;
   } else {
     if (config.atWaypointChunk) {
-      document
-        .getElementById("menu-toggle-availability")
-        .parentElement.classList.remove("hide");
-      document
-        .getElementById("menu-edit-name")
-        .parentElement.classList.remove("hide");
+      showParent("menu-toggle-availability");
+      showParent("menu-edit-name");
+      showParent("menu-random-color");
     } else {
-      document
-        .getElementById("menu-add-waypoint")
-        .parentElement.classList.remove("hide");
+      showParent("menu-add-waypoint");
     }
 
-    document.getElementById("rmenu").classList.remove("hide");
+    show("rmenu");
     document.getElementById("rmenu").style.top = event.y + "px";
     document.getElementById("rmenu").style.left = event.x + "px";
     config.rmenu = true;
@@ -95,6 +100,7 @@ function toggleRmenu() {
 
 function toggleAvailability() {
   toggleRmenu();
+  if (config.auth === "") return;
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     fetch(`dimension/${config.dim}`, {
@@ -116,6 +122,7 @@ function toggleAvailability() {
 
 function editName() {
   toggleRmenu();
+  if (config.auth === "") return;
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     const name = prompt("Please input new name:", ch.name);
@@ -139,9 +146,33 @@ function editName() {
   }
 }
 
+function randomWaypointColor() {
+  toggleRmenu();
+  if (config.auth === "") return;
+  const ch = config.activeChunk;
+  if (config.atWaypointChunk) {
+    const color = randomColor();
+    fetch(`dimension/${config.dim}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        WaypointAuth: config.auth,
+        "Waypoint-Identifier": config.activeChunk.identifier
+      },
+      body: `color=${color}`
+    }).then(resp => {
+      if (resp.status == 200) {
+        ch.color = color;
+        render();
+      }
+    });
+  }
+}
+
 function addWaypoint(x, z) {
   toggleRmenu();
-  if (typeof x === undefined) {
+  if (config.auth === "") return;
+  if (typeof x === undefined || typeof z === undefined) {
     if (config.atWaypointChunk) {
       return;
     }
