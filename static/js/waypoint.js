@@ -19,9 +19,7 @@ class Waypoint {
   }
 
   get identifier() {
-    return `${parseInt(this.x / 16)}/${parseInt(this.y / 16)}/${parseInt(
-      this.z / 16
-    )}`;
+    return `${parseInt(this.x / 16)}/${parseInt(this.z / 16)}`;
   }
 }
 
