@@ -30,6 +30,7 @@ class Config {
     this.canvasY = 0;
 
     this.rmenu = false;
+    this.edit = false;
 
     this.mouseX = 0;
     this.mouseY = 0;

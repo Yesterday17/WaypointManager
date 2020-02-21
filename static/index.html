@@ -39,13 +39,8 @@
         </button>
       </div>
       <div class="hide">
-        <button id="menu-edit-name" onclick="editName()">
-          Edit Name
-        </button>
-      </div>
-      <div class="hide">
-        <button id="menu-random-color" onclick="randomWaypointColor()">
-          Random Color
+        <button id="menu-edit" onclick="editWaypoint()">
+          Edit waypoint
         </button>
       </div>
       <div class="hide">
@@ -60,13 +55,13 @@
       <div><span>X:&nbsp;</span><input type="text" id="edit-x" /></div>
       <div><span>Y:&nbsp;</span><input type="text" id="edit-y" /></div>
       <div><span>Z:&nbsp;</span><input type="text" id="edit-z" /></div>
-      <div><span>Color:&nbsp;</span><input type="text" id="edit-color" /></div>
+      <div><span>Color:&nbsp;</span><input type="text" id="edit-color" class="jscolor" /></div>
       <div>
         <span>Available:&nbsp;</span
         ><input type="checkbox" id="edit-available" />
       </div>
-      <div class="submit">
-        <button onclick="alert(233)">Submit</button>
+      <div id="edit-button" class="submit">
+        <button onclick="submitEdit()">Submit</button>
       </div>
     </div>
 
@@ -75,5 +70,6 @@
     <script src="js/config.js"></script>
     <script src="js/waypoint.js"></script>
     <script src="js/canvas.js"></script>
+    <script src="js/jscolor.js"></script>
   </body>
 </html>

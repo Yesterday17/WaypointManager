@@ -73,7 +73,7 @@ canvas.addEventListener("mousedown", event => {
 });
 
 canvas.addEventListener("mousemove", event => {
-  if (config.rmenu) {
+  if (config.rmenu || config.edit) {
     return;
   }
 

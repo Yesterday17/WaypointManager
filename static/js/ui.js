@@ -7,9 +7,59 @@ function showWaypointDetailBox(toShow) {
   }
 }
 
-function showWaypointEditBox() {
-  show("edit");
-  // TODO
+function toggleEdit() {
+  if (config.edit) {
+    hide("edit");
+  } else {
+    show("edit");
+    showParent("edit-name");
+    showParent("edit-color");
+    if (config.atWaypointChunk) {
+      hideParent("edit-x");
+      hideParent("edit-y");
+      hideParent("edit-z");
+      showParent("edit-available");
+    } else {
+      showParent("edit-x");
+      showParent("edit-y");
+      showParent("edit-z");
+      showParent("edit-available");
+    }
+  }
+  config.edit = !config.edit;
+}
+
+function editWaypoint() {
+  toggleRmenu();
+  document.getElementById("edit-name").value = config.activeChunk.name;
+  document.getElementById("edit-color").value = config.activeChunk.color.substring(1);
+  document.getElementById("edit-available").value = config.activeChunk.available;
+  toggleEdit();
+}
+
+function submitEdit() {
+  toggleEdit();
+  if (config.auth === "") return;
+  const ch = config.activeChunk;
+  if (config.atWaypointChunk) {
+    const color = '#' + document.getElementById("edit-color").color;
+    const name = document.getElementById("edit-name").value;
+    fetch(`dimension/${config.dim}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        WaypointAuth: config.auth,
+        "Waypoint-Identifier": config.activeChunk.identifier
+      },
+      body: `color=${color}&name=${name}`
+    }).then(resp => {
+      if (resp.status == 200) {
+        ch.color = color;
+        ch.name = name;
+        render();
+      }
+    });
+  }
 }
 
 function updateWaypointDetailBox(p) {
@@ -83,15 +133,13 @@ function toggleRmenu() {
   if (config.rmenu) {
     hide("rmenu");
     hideParent("menu-toggle-availability");
-    hideParent("menu-edit-name");
+    hideParent("menu-edit");
     hideParent("menu-add-waypoint");
-    hideParent("menu-random-color");
     config.rmenu = false;
   } else {
     if (config.atWaypointChunk) {
       showParent("menu-toggle-availability");
-      showParent("menu-edit-name");
-      showParent("menu-random-color");
+      showParent("menu-edit");
     } else {
       showParent("menu-add-waypoint");
     }
