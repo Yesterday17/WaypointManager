@@ -62,18 +62,28 @@ function updateDimensionDropdown() {
 function toggleRmenu() {
   if (config.rmenu) {
     document.getElementById("rmenu").classList.add("hide");
-    document.getElementById("menu-toggle-availbility").classList.add("hide");
-    document.getElementById("menu-edit-color").classList.add("hide");
-    document.getElementById("menu-add-waypoint").classList.add("hide");
+    document
+      .getElementById("menu-toggle-availbility")
+      .parentElement.classList.add("hide");
+    document
+      .getElementById("menu-edit-color")
+      .parentElement.classList.add("hide");
+    document
+      .getElementById("menu-add-waypoint")
+      .parentElement.classList.add("hide");
     config.rmenu = false;
   } else {
     if (config.atWaypointChunk) {
       document
         .getElementById("menu-toggle-availbility")
-        .classList.remove("hide");
-      document.getElementById("menu-edit-color").classList.remove("hide");
+        .parentElement.classList.remove("hide");
+      document
+        .getElementById("menu-edit-color")
+        .parentElement.classList.remove("hide");
     } else {
-      document.getElementById("menu-add-waypoint").classList.remove("hide");
+      document
+        .getElementById("menu-add-waypoint")
+        .parentElement.classList.remove("hide");
     }
 
     document.getElementById("rmenu").classList.remove("hide");
@@ -85,6 +95,7 @@ function toggleRmenu() {
 
 function toggleAvailbility() {
   toggleRmenu();
+  const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     fetch(`dimension/${config.dim}`, {
       method: "PATCH",
@@ -95,11 +106,11 @@ function toggleAvailbility() {
       },
       body: `available=${!config.activeChunk.available}`
     }).then(resp => {
-      if (resp.status === 200) {
-        config.activeChunk.available = !config.activeChunk.available;
+      if (resp.status == 200) {
+        ch.available = !ch.available;
+        render();
       }
     });
-    render();
   }
 }
 
