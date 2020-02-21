@@ -15,7 +15,6 @@ function toggleEdit(isNew) {
     hideParent("edit-z");
   } else {
     show("edit");
-    console.log(isNew);
     if (isNew) {
       showParent("edit-x");
       showParent("edit-y");
@@ -76,7 +75,6 @@ function submitEdit() {
       available
     }).then(resp => {
       if (resp.status == 200) {
-        console.log(ch);
         waypoints.map.set(ch.identifier, ch);
         render();
       }
@@ -235,6 +233,5 @@ function addWaypoint(x, z) {
     x = config.activeChunk.x;
     z = config.activeChunk.z;
   }
-  console.log(x, z);
   editWaypoint(new Waypoint("New Waypoint", x, 80, z, randomColor(), false));
 }
