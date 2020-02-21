@@ -106,54 +106,63 @@ async function render() {
   // Clear
   ctx.clearRect(0, 0, config.canvasX, config.canvasY);
 
-  // Active waypoints
-  const waypointsToDraw = [];
-
   // Chunks
+  const chunks = [];
   for (let i = -1; i < config.nowChunksX - 1; i++) {
     for (let j = -1; j < config.nowChunksZ - 1; j++) {
       const chunkX = config.nowChunkX + i;
       const chunkZ = config.nowChunkZ + j;
 
       if (waypoints.has(chunkX, chunkZ)) {
-        waypointsToDraw.push({ i, j, waypoint: waypoints.get(chunkX, chunkZ) });
-      } else {
-        chunk(i, j);
+        const wp = waypoints.get(chunkX, chunkZ);
+        chunkColor(i, j, wp);
+        chunks.push([i, j, wp]);
       }
     }
   }
 
-  // Waypoints
-  waypointsToDraw.forEach(p => {
-    chunk(p.i, p.j, p.waypoint.color, true);
-    chunkText(p.i, p.j, p.waypoint.name, p.waypoint.available);
-  });
+  for (let i = -1; i < config.nowChunksX; i++) {
+    ctx.beginPath();
+    ctx.moveTo(
+      config.offsetX + i * config.chunkSize,
+      config.offsetZ - config.chunkSize
+    );
+    ctx.lineTo(
+      config.offsetX + i * config.chunkSize,
+      config.offsetZ + config.nowChunksZ * config.chunkSize
+    );
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  for (let i = -1; i < config.nowChunksZ; i++) {
+    ctx.beginPath();
+    ctx.moveTo(
+      config.offsetX - config.chunkSize,
+      config.offsetZ + i * config.chunkSize
+    );
+    ctx.lineTo(
+      config.offsetX + config.nowChunksX * config.chunkSize,
+      config.offsetZ + i * config.chunkSize
+    );
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  chunks.forEach(([x, z, wp]) => wp.available && chunkText(x, z, wp));
 }
 
-function chunk(x, z, color = "white", isTextChunk = false) {
-  ctx.fillStyle = color;
-  ctx.strokeRect(
-    config.offsetX + x * config.chunkSize,
-    config.offsetZ + z * config.chunkSize,
-    config.chunkSize - isTextChunk,
-    config.chunkSize - isTextChunk
-  );
+function chunkColor(x, z, wp) {
+  ctx.fillStyle = wp.color;
   ctx.fillRect(
     config.offsetX + x * config.chunkSize,
     config.offsetZ + z * config.chunkSize,
-    config.chunkSize - isTextChunk,
-    config.chunkSize - isTextChunk
+    config.chunkSize,
+    config.chunkSize
   );
 }
 
-function chunkText(
-  x,
-  z,
-  text = "",
-  available,
-  textColor = "white",
-  textStrokeColor = "black"
-) {
+function chunkText(x, z, wp, textColor = "white", textStrokeColor = "black") {
   let backup_stroke = ctx.strokeStyle;
   let backup_lw = ctx.lineWidth;
 
@@ -168,18 +177,16 @@ function chunkText(
   ctx.fillStyle = textColor;
   ctx.strokeStyle = textStrokeColor;
 
-  if (available) {
-    ctx.strokeText(
-      text,
-      config.offsetX + x * config.chunkSize + config.chunkSize / 2,
-      config.offsetZ + z * config.chunkSize + config.chunkSize / 2
-    );
-    ctx.fillText(
-      text,
-      config.offsetX + x * config.chunkSize + config.chunkSize / 2,
-      config.offsetZ + z * config.chunkSize + config.chunkSize / 2
-    );
-  }
+  ctx.strokeText(
+    wp.name,
+    config.offsetX + x * config.chunkSize + config.chunkSize / 2,
+    config.offsetZ + z * config.chunkSize + config.chunkSize / 2
+  );
+  ctx.fillText(
+    wp.name,
+    config.offsetX + x * config.chunkSize + config.chunkSize / 2,
+    config.offsetZ + z * config.chunkSize + config.chunkSize / 2
+  );
 
   ctx.strokeStyle = backup_stroke;
   ctx.lineWidth = backup_lw;
