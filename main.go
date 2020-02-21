@@ -1,23 +1,28 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
+	"time"
 )
 
 const (
 	WaypointFolder = "waypoints"
 	StaticFolder   = "static"
 )
+
+var rnd = rand.NewSource(time.Now().Unix())
 
 type Waypoint struct {
 	Name      string `json:"name"`
@@ -29,7 +34,7 @@ type Waypoint struct {
 }
 
 func (w Waypoint) String() string {
-	return fmt.Sprintf("%d/%d/%d", w.X/16, w.Y/16, w.Z/16)
+	return fmt.Sprintf("%d/%d", w.X/16, w.Z/16)
 }
 
 func (w Waypoint) Valid() bool {
@@ -87,8 +92,11 @@ func SaveWaypoints(file string, m *sync.Map) {
 }
 
 func GetBoolFromString(str string) bool {
+	if str == "false" {
+		return false
+	}
 	a, err := strconv.Atoi(str)
-	return err != nil || a == 0
+	return err != nil || a == 1
 }
 
 func GenWaypointByForm(f url.Values) (Waypoint, error) {
@@ -107,11 +115,14 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 		return Waypoint{}, err
 	}
 
-	var available = true
-	if f.Get("available") == "false" {
-		available = false
-	} else {
-		available = GetBoolFromString(f.Get("available"))
+	var color = f.Get("color")
+	if color == "" {
+		// Random color
+		color = fmt.Sprintf("#%s", hex.EncodeToString([]byte{
+			byte(rnd.Int63() % 256),
+			byte(rnd.Int63() % 256),
+			byte(rnd.Int63() % 256),
+		}))
 	}
 
 	wp := Waypoint{
@@ -120,7 +131,7 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 		Y:         y,
 		Z:         z,
 		Color:     f.Get("color"),
-		Available: available,
+		Available: GetBoolFromString(f.Get("available")),
 	}
 	return wp, nil
 }
