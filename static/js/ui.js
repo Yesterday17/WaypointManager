@@ -169,16 +169,21 @@ function showParent(id) {
 }
 
 function toggleRmenu() {
+  if (config.edit) {
+    return;
+  }
   if (config.rmenu) {
     hide("rmenu");
     hideParent("menu-toggle-availability");
     hideParent("menu-edit");
+    showParent("menu-remove");
     hideParent("menu-add-waypoint");
     config.rmenu = false;
   } else {
     if (config.atWaypointChunk) {
       showParent("menu-toggle-availability");
       showParent("menu-edit");
+      showParent("menu-remove");
     } else {
       showParent("menu-add-waypoint");
     }
@@ -226,17 +231,15 @@ function editName() {
   }
 }
 
-function randomWaypointColor() {
+function removeWaypoint() {
   toggleRmenu();
   if (config.auth === "") return;
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     const color = randomColor();
-    patch(config.auth, config.dim, ch.identifier, {
-      color
-    }).then(resp => {
+    Delete(config.auth, config.dim, ch.identifier).then(resp => {
       if (resp.status == 200) {
-        ch.color = color;
+        waypoints.map.delete(ch.identifier);
         render();
       }
     });
@@ -244,7 +247,10 @@ function randomWaypointColor() {
 }
 
 function addWaypoint(x, z) {
-  if (config.auth === "") return;
+  if (config.auth === "") {
+    toggleRmenu();
+    return;
+  }
   if (typeof x === "undefined" || typeof z === "undefined") {
     if (config.atWaypointChunk) {
       return;

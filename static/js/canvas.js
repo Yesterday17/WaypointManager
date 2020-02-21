@@ -14,6 +14,9 @@ window.onload = window.onresize = function resize() {
 };
 
 function updateWaypointDetail(x, z) {
+  if (config.edit) {
+    return;
+  }
   let chunk = getCurrentChunk(x, z);
   if (chunk.length === 3) {
     config.activeChunk = chunk[0];
@@ -56,6 +59,9 @@ canvas.addEventListener("touchstart", event => {
 
 canvas.addEventListener("touchmove", event => {
   event.preventDefault();
+  if (config.rmenu || config.edit) {
+    return;
+  }
   touchMove(event.touches[0]);
 });
 

@@ -27,3 +27,7 @@ function patch(auth, dim, identifier, body) {
 function post(auth, dim, identifier, body) {
   return wFetch(`dimension/${dim}`, "POST", auth, identifier, body);
 }
+
+function Delete(auth, dim, identifier) {
+  return wFetch(`dimension/${dim}`, "DELETE", auth, identifier);
+}
