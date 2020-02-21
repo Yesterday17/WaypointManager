@@ -81,11 +81,9 @@ canvas.addEventListener("mousemove", event => {
   config.mouseX = event.x;
   config.mouseY = event.y;
   fixCursor(event);
+  updateWaypointDetail(event.x, event.y);
   if (config.drag) {
     updateDrag(event.movementX, event.movementY);
-  } else {
-    // Hover
-    updateWaypointDetail(event.x, event.y);
   }
 });
 
@@ -93,16 +91,6 @@ function mouseUp(event) {
   event.preventDefault();
   config.drag = false;
   config.persist();
-
-  const chunk = getCurrentChunk(config.mouseX, config.mouseY);
-  if (chunk.length === 3) {
-    config.activeChunk = chunk[0];
-  } else {
-    config.activeChunk = {
-      x: chunk[0],
-      z: chunk[1]
-    };
-  }
 }
 
 canvas.addEventListener("mouseup", mouseUp);
