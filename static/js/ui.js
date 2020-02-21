@@ -179,7 +179,7 @@ function editName() {
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     const name = prompt("Please input new name:", ch.name);
-    if (name === ch.name || name === "") {
+    if (name === ch.name || name === "" || name === null) {
       return;
     }
     fetch(`dimension/${config.dim}`, {
