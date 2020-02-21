@@ -12,6 +12,7 @@ body {
   padding: 10px;
   background-color: rgb(28, 28, 28, 0.8);
   color: #fff;
+  user-select: none;
 }
 
 #control {

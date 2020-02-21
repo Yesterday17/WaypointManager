@@ -63,10 +63,10 @@ function toggleRmenu() {
   if (config.rmenu) {
     document.getElementById("rmenu").classList.add("hide");
     document
-      .getElementById("menu-toggle-availbility")
+      .getElementById("menu-toggle-availability")
       .parentElement.classList.add("hide");
     document
-      .getElementById("menu-edit-color")
+      .getElementById("menu-edit-name")
       .parentElement.classList.add("hide");
     document
       .getElementById("menu-add-waypoint")
@@ -75,10 +75,10 @@ function toggleRmenu() {
   } else {
     if (config.atWaypointChunk) {
       document
-        .getElementById("menu-toggle-availbility")
+        .getElementById("menu-toggle-availability")
         .parentElement.classList.remove("hide");
       document
-        .getElementById("menu-edit-color")
+        .getElementById("menu-edit-name")
         .parentElement.classList.remove("hide");
     } else {
       document
@@ -93,7 +93,7 @@ function toggleRmenu() {
   }
 }
 
-function toggleAvailbility() {
+function toggleAvailability() {
   toggleRmenu();
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
@@ -104,7 +104,7 @@ function toggleAvailbility() {
         WaypointAuth: config.auth,
         "Waypoint-Identifier": config.activeChunk.identifier
       },
-      body: `available=${!config.activeChunk.available}`
+      body: `available=${!ch.available}`
     }).then(resp => {
       if (resp.status == 200) {
         ch.available = !ch.available;
@@ -114,12 +114,39 @@ function toggleAvailbility() {
   }
 }
 
-function editColor() {
-  // TODO
+function editName() {
   toggleRmenu();
+  const ch = config.activeChunk;
+  if (config.atWaypointChunk) {
+    const name = prompt("Please input new name:", ch.name);
+    if (name === ch.name || name === "") {
+      return;
+    }
+    fetch(`dimension/${config.dim}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        WaypointAuth: config.auth,
+        "Waypoint-Identifier": config.activeChunk.identifier
+      },
+      body: `name=${name}`
+    }).then(resp => {
+      if (resp.status == 200) {
+        ch.name = name;
+        render();
+      }
+    });
+  }
 }
 
-function addWaypoint() {
-  //TODO
+function addWaypoint(x, z) {
   toggleRmenu();
+  if (typeof x === undefined) {
+    if (config.atWaypointChunk) {
+      return;
+    }
+    x = config.chunk.x;
+    z = config.chunk.z;
+  }
+  // TODO: Add
 }

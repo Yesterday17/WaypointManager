@@ -67,7 +67,7 @@ canvas.addEventListener("touchend", event => {
 canvas.addEventListener("mousedown", event => {
   event.preventDefault();
   showWaypointDetailBox(!!config.showCursorInfo);
-  if (!event.altKey) {
+  if (!event.ctrlKey) {
     config.drag = true;
   }
 });
@@ -186,7 +186,7 @@ function chunkText(
 }
 
 function fixCursor(event) {
-  if (event.altKey && config.atWaypointChunk) {
+  if (event.ctrlKey) {
     canvas.style.cursor = "pointer";
   } else {
     canvas.style.cursor = "";
@@ -203,13 +203,29 @@ canvas.addEventListener("click", event => {
   if (config.rmenu) {
     toggleRmenu();
   }
-  if (event.altKey && config.atWaypointChunk) {
+  if (event.ctrlKey) {
     event.preventDefault();
-    // TODO: Edit menu
+    if (config.auth === "") {
+      config.auth = prompt("Please input server auth:", "");
+      if (config.auth === "") {
+        alert("Invalid auth.");
+        return;
+      }
+
+      if (config.atWaypointChunk) {
+        // TODO: Edit menu
+        alert("Edit panel not supported!");
+      } else {
+        addWaypoint(event.x, event.z);
+      }
+    }
   }
 });
 
 canvas.addEventListener("contextmenu", event => {
   event.preventDefault();
+  config.mouseX = event.x;
+  config.mouseY = event.y;
+  updateWaypointDetail(event.x, event.y);
   toggleRmenu();
 });
