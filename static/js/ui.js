@@ -7,7 +7,7 @@ function showWaypointDetailBox(toShow) {
   }
 }
 
-function toggleEdit() {
+function toggleEdit(isNew) {
   if (config.edit) {
     hide("edit");
     hideParent("edit-x");
@@ -15,7 +15,8 @@ function toggleEdit() {
     hideParent("edit-z");
   } else {
     show("edit");
-    if (!config.atWaypointChunk) {
+    console.log(isNew);
+    if (isNew) {
       showParent("edit-x");
       showParent("edit-y");
       showParent("edit-z");
@@ -24,37 +25,59 @@ function toggleEdit() {
   config.edit = !config.edit;
 }
 
-function editWaypoint() {
+function editWaypoint(wp = config.activeChunk) {
   toggleRmenu();
-  document.getElementById("edit-name").value = config.activeChunk.name;
-  document.getElementById(
-    "edit-color"
-  ).value = config.activeChunk.color.substring(1);
-  document.getElementById("edit-available").checked =
-    config.activeChunk.available;
-  toggleEdit();
+  document.getElementById("edit-name").value = wp.name;
+  document.getElementById("edit-x").value = wp.x;
+  document.getElementById("edit-y").value = wp.y;
+  document.getElementById("edit-z").value = wp.z;
+  document.getElementById("edit-color").value = wp.color.substring(1);
+  document.getElementById("edit-available").checked = wp.available;
+  toggleEdit(wp !== config.activeChunk);
 }
 
 function submitEdit() {
+  const isEdit = document
+    .getElementById("edit-x")
+    .parentElement.classList.contains("hide");
   toggleEdit();
   if (config.auth === "") return;
+
   const ch = config.activeChunk;
-  if (config.atWaypointChunk) {
-    const color = "#" + document.getElementById("edit-color").value;
-    const name = document.getElementById("edit-name").value;
-    const available = document.getElementById("edit-available").checked;
-    fetch(`dimension/${config.dim}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        WaypointAuth: config.auth,
-        "Waypoint-Identifier": config.activeChunk.identifier
-      },
-      body: `color=${color}&name=${name}&available=${available}`
+  const name = document.getElementById("edit-name").value;
+  const x = document.getElementById("edit-x").value;
+  const y = document.getElementById("edit-y").value;
+  const z = document.getElementById("edit-z").value;
+  const color = "#" + document.getElementById("edit-color").value;
+  const available = document.getElementById("edit-available").checked;
+  if (isEdit) {
+    // edit
+    patch(config.auth, config.dim, ch.identifier, {
+      color,
+      name,
+      available
     }).then(resp => {
       if (resp.status == 200) {
         ch.color = color;
         ch.name = name;
+        ch.available = available;
+        render();
+      }
+    });
+  } else {
+    // new
+    const ch = new Waypoint(name, x, y, z, color, available);
+    post(config.auth, config.dim, ch.identifier, {
+      name,
+      x,
+      y,
+      z,
+      color,
+      available
+    }).then(resp => {
+      if (resp.status == 200) {
+        console.log(ch);
+        waypoints.map.set(ch.identifier, ch);
         render();
       }
     });
@@ -155,14 +178,8 @@ function toggleAvailability() {
   if (config.auth === "") return;
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
-    fetch(`dimension/${config.dim}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        WaypointAuth: config.auth,
-        "Waypoint-Identifier": config.activeChunk.identifier
-      },
-      body: `available=${!ch.available}`
+    patch(config.auth, config.dim, ch.identifier, {
+      available: !ch.available
     }).then(resp => {
       if (resp.status == 200) {
         ch.available = !ch.available;
@@ -181,14 +198,8 @@ function editName() {
     if (name === ch.name || name === "" || name === null) {
       return;
     }
-    fetch(`dimension/${config.dim}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        WaypointAuth: config.auth,
-        "Waypoint-Identifier": config.activeChunk.identifier
-      },
-      body: `name=${name}`
+    patch(config.auth, config.dim, ch.identifier, {
+      name
     }).then(resp => {
       if (resp.status == 200) {
         ch.name = name;
@@ -204,14 +215,8 @@ function randomWaypointColor() {
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
     const color = randomColor();
-    fetch(`dimension/${config.dim}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        WaypointAuth: config.auth,
-        "Waypoint-Identifier": config.activeChunk.identifier
-      },
-      body: `color=${color}`
+    patch(config.auth, config.dim, ch.identifier, {
+      color
     }).then(resp => {
       if (resp.status == 200) {
         ch.color = color;
@@ -222,14 +227,14 @@ function randomWaypointColor() {
 }
 
 function addWaypoint(x, z) {
-  toggleRmenu();
   if (config.auth === "") return;
-  if (typeof x === undefined || typeof z === undefined) {
+  if (typeof x === "undefined" || typeof z === "undefined") {
     if (config.atWaypointChunk) {
       return;
     }
-    x = config.chunk.x;
-    z = config.chunk.z;
+    x = config.activeChunk.x;
+    z = config.activeChunk.z;
   }
-  // TODO: Add
+  console.log(x, z);
+  editWaypoint(new Waypoint("New Waypoint", x, 80, z, randomColor(), false));
 }

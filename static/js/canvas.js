@@ -20,8 +20,8 @@ function updateWaypointDetail(x, z) {
   } else {
     if (config.showCursorInfo) {
       config.activeChunk = {
-        x: chunk[0] * 16 + 8,
-        z: chunk[1] * 16 + 8
+        x: chunk[0] * 16,
+        z: chunk[1] * 16
       };
     }
   }
