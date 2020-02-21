@@ -24,13 +24,29 @@ function toggleEdit(isNew) {
   config.edit = !config.edit;
 }
 
+const pickr = Pickr.create({
+  el: "#edit-color > div",
+  theme: "nano",
+  components: {
+    preview: true,
+    opacity: true,
+    hue: true,
+
+    interaction: {
+      input: true,
+      clear: true,
+      save: true
+    }
+  }
+});
+
 function editWaypoint(wp = config.activeChunk) {
   toggleRmenu();
   document.getElementById("edit-name").value = wp.name;
   document.getElementById("edit-x").value = wp.x;
   document.getElementById("edit-y").value = wp.y;
   document.getElementById("edit-z").value = wp.z;
-  document.getElementById("edit-color").value = wp.color.substring(1);
+  pickr.setColor(wp.color);
   document.getElementById("edit-available").checked = wp.available;
   toggleEdit(wp !== config.activeChunk);
 }
@@ -47,7 +63,10 @@ function submitEdit() {
   const x = document.getElementById("edit-x").value;
   const y = document.getElementById("edit-y").value;
   const z = document.getElementById("edit-z").value;
-  const color = "#" + document.getElementById("edit-color").value;
+  const color = pickr
+    .getColor()
+    .toHEXA()
+    .toString();
   const available = document.getElementById("edit-available").checked;
   if (isEdit) {
     // edit

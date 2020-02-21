@@ -5,6 +5,10 @@ body {
   overflow: hidden;
 }
 
+div {
+  cursor: default;
+}
+
 #control,
 #detail,
 #rmenu,
@@ -50,6 +54,10 @@ body {
   text-align: center;
 }
 
+#edit-color {
+  display: inline-block;
+}
+
 select,
 button,
 input {
@@ -74,4 +82,8 @@ input[type="text"] {
 
 .smail {
   font-size: smaller;
+}
+
+.pickr {
+  display: inline-block;
 }
