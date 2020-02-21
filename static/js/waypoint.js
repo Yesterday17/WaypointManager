@@ -23,41 +23,57 @@ class Waypoint {
   }
 }
 
-const waypoints = [];
-let waypointPromise;
+class Waypoints {
+  constructor() {
+    this.promise = fetch("dimension")
+      .then(d => d.json())
+      .then(j => {
+        if (!j.includes(config.dim)) {
+          config.dim = "0";
+        }
 
-async function initWaypoints() {
-  waypointPromise = fetch("dimension")
-    .then(d => d.json())
-    .then(j => {
-      if (!j.includes(config.dim)) {
-        config.dim = "0";
-      }
+        const dropdown = document.getElementById("dimension");
+        j.forEach(id => {
+          const opt = document.createElement("option");
+          opt.value = String(id);
+          opt.innerText = String(id);
+          dropdown.appendChild(opt);
+        });
+      })
+      .then(() => this.update());
+  }
 
-      const dropdown = document.getElementById("dimension");
-      j.forEach(id => {
-        const opt = document.createElement("option");
-        opt.value = String(id);
-        opt.innerText = String(id);
-        dropdown.appendChild(opt);
+  async update() {
+    updateDimensionDropdown();
+    this.promise = fetch(`dimension/${config.dim}`)
+      .then(d => d.json())
+      .then(arr => {
+        this.map = new Map();
+        arr.forEach(p => {
+          const wp = new Waypoint(p.name, p.x, p.y, p.z, p.color, p.available);
+          this.map.set(wp.identifier, wp);
+        });
       });
-    })
-    .then(loadWaypoints);
+  }
+
+  get(chunkX, chunkZ) {
+    return this.getI(`${chunkX}/${chunkZ}`);
+  }
+
+  getI(identifier) {
+    return this.map.get(identifier);
+  }
+
+  has(chunkX, chunkZ) {
+    return this.hasI(`${chunkX}/${chunkZ}`);
+  }
+
+  hasI(identifier) {
+    return this.map.has(identifier);
+  }
 }
 
-async function loadWaypoints() {
-  updateDimensionDropdown();
-  return fetch(`dimension/${config.dim}`)
-    .then(d => d.json())
-    .then(arr => {
-      waypoints.splice(0, waypoints.length);
-      waypoints.push(
-        ...arr.map(
-          p => new Waypoint(p.name, p.x, p.y, p.z, p.color, p.available)
-        )
-      );
-    });
-}
+const waypoints = new Waypoints();
 
 function getCurrentChunk(x, z) {
   const chunkX = Math.floor(
@@ -67,12 +83,9 @@ function getCurrentChunk(x, z) {
     config.nowChunkZ + (z - config.offsetZ) / config.chunkSize
   );
 
-  const active = waypoints.filter(p => p.isChunk(chunkX, chunkZ));
-  if (active.length > 0) {
-    return [active[0], chunkX, chunkZ];
+  if (waypoints.has(chunkX, chunkZ)) {
+    return [waypoints.get(chunkX, chunkZ), chunkX, chunkZ];
   } else {
     return [chunkX, chunkZ];
   }
 }
-
-initWaypoints();

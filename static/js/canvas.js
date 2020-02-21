@@ -101,7 +101,7 @@ canvas.addEventListener("mouseout", mouseUp);
 
 async function render() {
   // Wait for waypoints
-  await waypointPromise;
+  await waypoints.promise;
 
   // Clear
   ctx.clearRect(0, 0, config.canvasX, config.canvasY);
@@ -115,10 +115,8 @@ async function render() {
       const chunkX = config.nowChunkX + i;
       const chunkZ = config.nowChunkZ + j;
 
-      const active = waypoints.filter(p => p.isChunk(chunkX, chunkZ));
-      if (active.length > 0) {
-        const p = active[0];
-        waypointsToDraw.push({ i, j, waypoint: active[0] });
+      if (waypoints.has(chunkX, chunkZ)) {
+        waypointsToDraw.push({ i, j, waypoint: waypoints.get(chunkX, chunkZ) });
       } else {
         chunk(i, j);
       }
