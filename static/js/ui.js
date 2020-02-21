@@ -10,20 +10,15 @@ function showWaypointDetailBox(toShow) {
 function toggleEdit() {
   if (config.edit) {
     hide("edit");
+    hideParent("edit-x");
+    hideParent("edit-y");
+    hideParent("edit-z");
   } else {
     show("edit");
-    showParent("edit-name");
-    showParent("edit-color");
-    if (config.atWaypointChunk) {
-      hideParent("edit-x");
-      hideParent("edit-y");
-      hideParent("edit-z");
-      showParent("edit-available");
-    } else {
+    if (!config.atWaypointChunk) {
       showParent("edit-x");
       showParent("edit-y");
       showParent("edit-z");
-      showParent("edit-available");
     }
   }
   config.edit = !config.edit;
@@ -32,8 +27,11 @@ function toggleEdit() {
 function editWaypoint() {
   toggleRmenu();
   document.getElementById("edit-name").value = config.activeChunk.name;
-  document.getElementById("edit-color").value = config.activeChunk.color.substring(1);
-  document.getElementById("edit-available").value = config.activeChunk.available;
+  document.getElementById(
+    "edit-color"
+  ).value = config.activeChunk.color.substring(1);
+  document.getElementById("edit-available").checked =
+    config.activeChunk.available;
   toggleEdit();
 }
 
@@ -42,8 +40,9 @@ function submitEdit() {
   if (config.auth === "") return;
   const ch = config.activeChunk;
   if (config.atWaypointChunk) {
-    const color = '#' + document.getElementById("edit-color").color;
+    const color = "#" + document.getElementById("edit-color").value;
     const name = document.getElementById("edit-name").value;
+    const available = document.getElementById("edit-available").checked;
     fetch(`dimension/${config.dim}`, {
       method: "PATCH",
       headers: {
@@ -51,7 +50,7 @@ function submitEdit() {
         WaypointAuth: config.auth,
         "Waypoint-Identifier": config.activeChunk.identifier
       },
-      body: `color=${color}&name=${name}`
+      body: `color=${color}&name=${name}&available=${available}`
     }).then(resp => {
       if (resp.status == 200) {
         ch.color = color;
