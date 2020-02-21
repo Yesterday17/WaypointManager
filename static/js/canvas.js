@@ -35,10 +35,10 @@ function updateDrag(x, z) {
   config.offsetZ += z;
 
   config.nowChunkX -= parseInt(config.offsetX / config.chunkSize);
-  config.offsetX = config.offsetX % config.chunkSize;
+  config.offsetX %= config.chunkSize;
 
   config.nowChunkZ -= parseInt(config.offsetZ / config.chunkSize);
-  config.offsetZ = config.offsetZ % config.chunkSize;
+  config.offsetZ %= config.chunkSize;
 
   render();
 }

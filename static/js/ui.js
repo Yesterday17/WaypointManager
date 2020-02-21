@@ -23,15 +23,29 @@ function updateWaypointDetailBox(p) {
   document.getElementById("detail-z").innerText = p.z;
 }
 
-function adjustScale(diff) {
+function adjustScale(diff, isButton = true) {
   config.scale += diff;
-  config.recalculateNowChunks();
+  if (isButton) {
+    config.recalculateNowChunks(
+      -diff * CHUNK_RENDER_SIZE * Math.ceil(config.nowChunksX / 2),
+      -diff * CHUNK_RENDER_SIZE * Math.ceil(config.nowChunksZ / 2)
+    );
+  } else {
+    config.recalculateNowChunks(
+      -diff *
+        CHUNK_RENDER_SIZE *
+        Math.ceil(config.activeChunk.x / 16 - config.nowChunkX),
+      -diff *
+        CHUNK_RENDER_SIZE *
+        Math.ceil(config.activeChunk.z / 16 - config.nowChunkZ)
+    );
+  }
   config.persist();
   render();
 }
 
 document.addEventListener("wheel", event => {
-  adjustScale(0.1 * (event.deltaY > 0 ? -1 : 1));
+  adjustScale(0.1 * (event.deltaY > 0 ? -1 : 1), false);
 });
 
 function switchDimension() {
@@ -70,18 +84,21 @@ function toggleRmenu() {
 }
 
 function toggleAvailbility() {
-  fetch(`dimension/${config.dim}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      WaypointAuth: config.auth,
-      "Waypoint-Identifier": config.activeChunk.identifier
-    },
-    body: `available=${!config.activeChunk.available}`
-  });
   toggleRmenu();
   if (config.atWaypointChunk) {
-    config.activeChunk.available = !config.activeChunk.available;
+    fetch(`dimension/${config.dim}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        WaypointAuth: config.auth,
+        "Waypoint-Identifier": config.activeChunk.identifier
+      },
+      body: `available=${!config.activeChunk.available}`
+    }).then(resp => {
+      if (resp.status === 200) {
+        config.activeChunk.available = !config.activeChunk.available;
+      }
+    });
     render();
   }
 }

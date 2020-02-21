@@ -58,14 +58,16 @@ class Config {
     return Math.ceil(this.canvasY / this.chunkSize);
   }
 
-  recalculateNowChunks() {
+  recalculateNowChunks(moveX = 0, moveZ = 0) {
     if (this.xChunkCount > 50 || this.yChunkCount > 50) {
       this.scale += 0.1;
     } else if (this.xChunkCount < 3 || this.yChunkCount < 3) {
       this.scale -= 0.1;
+    } else {
+      this.nowChunksX = this.xChunkCount + 2;
+      this.nowChunksZ = this.yChunkCount + 2;
+      updateDrag(moveX, moveZ);
     }
-    this.nowChunksX = this.xChunkCount + 2;
-    this.nowChunksZ = this.yChunkCount + 2;
   }
 
   get atWaypointChunk() {
