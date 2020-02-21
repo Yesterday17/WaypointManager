@@ -45,7 +45,7 @@ class Waypoints {
 
   async update() {
     updateDimensionDropdown();
-    this.promise = fetch(`dimension/${config.dim}`)
+    return fetch(`dimension/${config.dim}`)
       .then(d => d.json())
       .then(arr => {
         this.map = new Map();

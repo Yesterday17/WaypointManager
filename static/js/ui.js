@@ -49,7 +49,7 @@ document.addEventListener("wheel", event => {
 
 function switchDimension() {
   config.dim = document.getElementById("dimension").value;
-  waypoints.update();
+  waypoints.promise = waypoints.update();
   config.persist();
   render();
 }
