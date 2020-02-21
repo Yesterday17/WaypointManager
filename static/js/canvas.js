@@ -4,6 +4,7 @@ if (!ctx) {
   alert("Could not get canvas context!");
   throw "Could not get canvas context.";
 }
+ctx.translate(0.5, 0.5);
 
 window.onload = window.onresize = function resize() {
   canvas.width = config.canvasX = window.innerWidth;
@@ -108,6 +109,7 @@ canvas.addEventListener("mouseout", mouseUp);
 async function render() {
   // Wait for waypoints
   await waypoints.promise;
+  if (config.activeChunk === undefined) updateWaypointDetail(100, 100);
 
   // Clear
   ctx.clearRect(0, 0, config.canvasX, config.canvasY);

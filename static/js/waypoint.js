@@ -10,16 +10,13 @@ class Waypoint {
   }
 
   isChunk(x, z) {
-    return (
-      this.x >= x * 16 &&
-      this.x < (x + 1) * 16 &&
-      this.z >= z * 16 &&
-      this.z < (z + 1) * 16
-    );
+    const chunkX = this.x >> 4;
+    const chunkZ = this.z >> 4;
+    return chunkX === x && chunkZ === z;
   }
 
   get identifier() {
-    return `${parseInt(this.x / 16)}/${parseInt(this.z / 16)}`;
+    return `${this.x >> 4}/${this.z >> 4}`;
   }
 }
 

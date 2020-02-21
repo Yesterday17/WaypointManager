@@ -258,5 +258,5 @@ function addWaypoint(x, z) {
     x = config.activeChunk.x;
     z = config.activeChunk.z;
   }
-  editWaypoint(new Waypoint("New Waypoint", x, 80, z, randomColor(), false));
+  editWaypoint(new Waypoint("New Waypoint", x, 80, z, randomColor(), true));
 }
