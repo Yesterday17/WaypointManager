@@ -34,7 +34,7 @@ type Waypoint struct {
 }
 
 func (w Waypoint) String() string {
-	return fmt.Sprintf("%d/%d", w.X/16, w.Z/16)
+	return fmt.Sprintf("%d/%d", w.X>>4, w.Z>>4)
 }
 
 func (w Waypoint) Valid() bool {
