@@ -75,7 +75,7 @@ function submitEdit() {
       name,
       available
     }).then(resp => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         ch.color = color;
         ch.name = name;
         ch.available = available;
@@ -93,7 +93,7 @@ function submitEdit() {
       color,
       available
     }).then(resp => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         waypoints.map.set(ch.identifier, ch);
         render();
       }
@@ -210,7 +210,7 @@ function toggleAvailability() {
     patch(config.auth, config.dim, ch.identifier, {
       available: !ch.available
     }).then(resp => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         ch.available = !ch.available;
         render();
       }
@@ -230,7 +230,7 @@ function editName() {
     patch(config.auth, config.dim, ch.identifier, {
       name
     }).then(resp => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         ch.name = name;
         render();
       }
@@ -245,7 +245,7 @@ function removeWaypoint() {
   if (config.atWaypointChunk) {
     const color = randomColor();
     Delete(config.auth, config.dim, ch.identifier).then(resp => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         waypoints.map.delete(ch.identifier);
         render();
       }
