@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -137,11 +138,15 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 }
 
 func main() {
-	if len(os.Args) == 1 {
+	var auth, port string
+	flag.StringVar(&auth, "auth", "", "Auth key for managing waypoints.")
+	flag.StringVar(&port, "port", "8102", "Port that WaypointManger listen.")
+	flag.Parse()
+
+	if auth == "" {
 		log.Panic("No auth_key provided.")
 	}
 
-	auth := os.Args[1]
 	dimensions := map[string]*sync.Map{}
 	infos, err := ioutil.ReadDir(WaypointFolder)
 	if err != nil {
@@ -299,6 +304,6 @@ func main() {
 	})
 	router.NotFound = http.FileServer(http.Dir(StaticFolder))
 
-	fmt.Println("Server listening on :8102")
-	log.Fatal(http.ListenAndServe(":8102", router))
+	fmt.Println("Server listening on :" + port)
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
