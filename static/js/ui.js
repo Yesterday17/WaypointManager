@@ -117,7 +117,14 @@ function updateWaypointDetailBox(p) {
 }
 
 function adjustScale(diff, isButton = true) {
-  config.scale += diff;
+  // if (config.scale <=0.7 || config.scale >= 2.0) return;
+  let original = config.scale;
+  config.scale = Math.sqrt(Math.pow(config.scale, 2) * (1 + diff));
+  diff = config.scale - original;
+  if ((diff < 0 && config.scale < 0.7) || (diff > 0 && config.scale > 2.5)) {
+    config.scale = original;
+    return;
+  }
   if (isButton) {
     config.recalculateNowChunks(
       -diff * CHUNK_RENDER_SIZE * Math.ceil(config.nowChunksX / 2),
