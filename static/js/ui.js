@@ -145,7 +145,7 @@ function adjustScale(diff, isButton = true) {
 }
 
 document.addEventListener("wheel", event => {
-  adjustScale(0.1 * (event.deltaY > 0 ? -1 : 1), false);
+  adjustScale(0.2 * (event.deltaY > 0 ? -1 : 1), false);
 });
 
 function switchDimension() {
@@ -193,6 +193,7 @@ function toggleRmenu() {
       showParent("menu-remove");
     } else {
       showParent("menu-add-waypoint");
+      hideParent("menu-remove");
     }
 
     show("rmenu");
