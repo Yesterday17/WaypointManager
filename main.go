@@ -223,7 +223,7 @@ func main() {
 			PushType:   PushTypeCreate,
 			Identifier: wp.String(),
 			Dim:        dim,
-			Wp:         wp,
+			Wp:         &wp,
 		})
 	})
 
@@ -328,7 +328,7 @@ func main() {
 			PushType:   PushTypePatch,
 			Identifier: identifier,
 			Dim:        dim,
-			Wp:         waypoint,
+			Wp:         &waypoint,
 		})
 	})
 

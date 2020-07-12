@@ -22,10 +22,10 @@ type websocketClients struct {
 }
 
 type pushWaypoint struct {
-	PushType   PushType `json:"type"`
-	Identifier string   `json:"identifier"`
-	Dim        string   `json:"dim"`
-	Wp         Waypoint `json:"waypoint"`
+	PushType   PushType  `json:"type"`
+	Identifier string    `json:"identifier"`
+	Dim        string    `json:"dim"`
+	Wp         *Waypoint `json:"waypoint"`
 }
 
 func (w *websocketClients) PushJSON(v pushWaypoint) {
