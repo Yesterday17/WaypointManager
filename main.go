@@ -222,6 +222,7 @@ func main() {
 		go wsClients.PushJSON(pushWaypoint{
 			PushType:   PushTypeCreate,
 			Identifier: wp.String(),
+			Dim:        dim,
 			Wp:         wp,
 		})
 	})
@@ -258,6 +259,7 @@ func main() {
 		go wsClients.PushJSON(pushWaypoint{
 			PushType:   PushTypeDelete,
 			Identifier: identifier,
+			Dim:        dim,
 			Wp:         nil,
 		})
 	})
@@ -325,6 +327,7 @@ func main() {
 		go wsClients.PushJSON(pushWaypoint{
 			PushType:   PushTypePatch,
 			Identifier: identifier,
+			Dim:        dim,
 			Wp:         waypoint,
 		})
 	})
