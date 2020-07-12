@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -16,6 +15,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 const (
@@ -45,7 +46,6 @@ func (w Waypoint) Valid() bool {
 func Map2Slice(m *sync.Map) []Waypoint {
 	var s []Waypoint
 	m.Range(func(k, v interface{}) bool {
-		//key := k.(string)
 		value := v.(Waypoint)
 		s = append(s, value)
 		return true
@@ -167,6 +167,8 @@ func main() {
 		data, _ := json.Marshal(arr)
 		fmt.Fprintf(w, "%s", data)
 	})
+
+	// Get waypoints
 	router.GET("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
@@ -176,6 +178,8 @@ func main() {
 			fmt.Fprintf(w, "[]")
 		}
 	})
+
+	// Create waypoint
 	router.POST("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
@@ -214,7 +218,15 @@ func main() {
 
 		waypoints.Store(wp.String(), wp)
 		SaveWaypoints(dim, waypoints)
+
+		go wsClients.PushJSON(pushWaypoint{
+			PushType:   PushTypeCreate,
+			Identifier: wp.String(),
+			Wp:         wp,
+		})
 	})
+
+	// Delete waypoint
 	router.DELETE("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
@@ -242,7 +254,15 @@ func main() {
 		waypoints.Delete(identifier)
 		SaveWaypoints(dim, waypoints)
 		w.WriteHeader(200)
+
+		go wsClients.PushJSON(pushWaypoint{
+			PushType:   PushTypeDelete,
+			Identifier: identifier,
+			Wp:         nil,
+		})
 	})
+
+	// Patch waypoint
 	router.PATCH("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
@@ -301,7 +321,17 @@ func main() {
 		waypoints.Store(identifier, waypoint)
 		SaveWaypoints(dim, waypoints)
 		w.WriteHeader(200)
+
+		go wsClients.PushJSON(pushWaypoint{
+			PushType:   PushTypePatch,
+			Identifier: identifier,
+			Wp:         waypoint,
+		})
 	})
+
+	// Listen websocket
+	router.GET("/ws", wsConnect)
+
 	router.NotFound = http.FileServer(http.Dir(StaticFolder))
 
 	fmt.Println("Server listening on :" + port)
