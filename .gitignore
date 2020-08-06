@@ -1,6 +1,8 @@
 waypoints
 waypoints.json
 .idea
+run
+out
 
 WaypointManager
 *.tar.gz
