@@ -131,7 +131,7 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 		X:         x,
 		Y:         y,
 		Z:         z,
-		Color:     f.Get("color"),
+		Color:     color,
 		Available: GetBoolFromString(f.Get("available")),
 	}
 	return wp, nil
