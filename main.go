@@ -277,7 +277,7 @@ func main() {
 			PushType:   PushTypeDelete,
 			Identifier: identifier,
 			Dim:        dim,
-			Wp:         Waypoint{},
+			Wp:         nil,
 		})
 	})
 
