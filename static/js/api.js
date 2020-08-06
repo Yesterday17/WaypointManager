@@ -13,7 +13,7 @@ function wFetch(url, method, auth, identifier, body) {
     method: method,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      WaypointAuth: auth,
+      "Waypoint-Auth": auth,
       "Waypoint-Identifier": identifier
     },
     body: body
