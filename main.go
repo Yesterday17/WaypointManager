@@ -139,8 +139,10 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 
 func main() {
 	var auth, port string
+	var cors bool
 	flag.StringVar(&auth, "auth", "", "Auth key for managing waypoints.")
 	flag.StringVar(&port, "port", "8102", "Port that WaypointManger listen.")
+	flag.BoolVar(&cors, "cors", true, "Whether allow COR requests.")
 	flag.Parse()
 
 	if auth == "" {
@@ -165,6 +167,9 @@ func main() {
 			arr = append(arr, key)
 		}
 		data, _ := json.Marshal(arr)
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		fmt.Fprintf(w, "%s", data)
 	})
 
@@ -172,6 +177,9 @@ func main() {
 	router.GET("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		dim := ps.ByName("dim")
 		waypoints, ok := dimensions[dim]
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		if ok {
 			fmt.Fprintf(w, "%s", SerializeWaypoints(waypoints))
 		} else {
@@ -219,6 +227,11 @@ func main() {
 		waypoints.Store(wp.String(), wp)
 		SaveWaypoints(dim, waypoints)
 
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		w.WriteHeader(200)
+
 		go wsClients.PushJSON(pushWaypoint{
 			PushType:   PushTypeCreate,
 			Identifier: wp.String(),
@@ -254,6 +267,10 @@ func main() {
 
 		waypoints.Delete(identifier)
 		SaveWaypoints(dim, waypoints)
+
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.WriteHeader(200)
 
 		go wsClients.PushJSON(pushWaypoint{
@@ -322,6 +339,10 @@ func main() {
 
 		waypoints.Store(identifier, waypoint)
 		SaveWaypoints(dim, waypoints)
+
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.WriteHeader(200)
 
 		go wsClients.PushJSON(pushWaypoint{
