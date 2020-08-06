@@ -195,7 +195,7 @@ func main() {
 			waypoints = &sync.Map{}
 			dimensions[dim] = waypoints
 		}
-		if r.Header.Get("WaypointAuth") != auth {
+		if r.Header.Get("Waypoint-Auth") != auth {
 			w.WriteHeader(401)
 			return
 		}
@@ -249,7 +249,7 @@ func main() {
 			return
 		}
 
-		if r.Header.Get("WaypointAuth") != auth {
+		if r.Header.Get("Waypoint-Auth") != auth {
 			w.WriteHeader(401)
 			return
 		}
@@ -290,7 +290,7 @@ func main() {
 			return
 		}
 
-		if r.Header.Get("WaypointAuth") != auth {
+		if r.Header.Get("Waypoint-Auth") != auth {
 			w.WriteHeader(401)
 			return
 		}
