@@ -161,7 +161,7 @@ func main() {
 	router := httprouter.New()
 	router.GET("/dimension", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		var arr []string
-		for key, _ := range dimensions {
+		for key := range dimensions {
 			arr = append(arr, key)
 		}
 		data, _ := json.Marshal(arr)
@@ -260,7 +260,7 @@ func main() {
 			PushType:   PushTypeDelete,
 			Identifier: identifier,
 			Dim:        dim,
-			Wp:         nil,
+			Wp:         Waypoint{},
 		})
 	})
 
