@@ -38,6 +38,7 @@ func (w *websocketClients) Register() *bcast.Member {
 
 var wsClients = func() websocketClients {
 	group := bcast.NewGroup()
+	go group.Broadcast(0)
 
 	return websocketClients{
 		group:       group,
