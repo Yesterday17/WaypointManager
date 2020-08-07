@@ -54,6 +54,8 @@ func wsConnect(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	c.SetPingHandler(nil)
+
 	go func() {
 		self := wsClients.Register()
 		for {
