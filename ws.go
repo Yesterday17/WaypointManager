@@ -53,6 +53,19 @@ func wsConnect(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	defer c.Close()
-	wsClients.Register()
+	go func() {
+		self := wsClients.Register()
+		for {
+			push, success := self.Recv().(pushWaypoint)
+			if !success {
+				break
+			}
+
+			err = c.WriteJSON(push)
+			if err != nil {
+				break
+			}
+		}
+		_ = c.Close()
+	}()
 }
