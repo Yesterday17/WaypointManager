@@ -46,15 +46,16 @@ var wsClients = func() websocketClients {
 	}
 }()
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func wsConnect(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
 	}
-
-	c.SetPingHandler(nil)
 
 	go func() {
 		self := wsClients.Register()
@@ -70,5 +71,14 @@ func wsConnect(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			}
 		}
 		_ = c.Close()
+	}()
+
+	go func() {
+		for {
+			_, _, err := c.ReadMessage()
+			if err != nil {
+				break
+			}
+		}
 	}()
 }
