@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/grafov/bcast"
@@ -14,6 +15,10 @@ const (
 	PushTypeCreate PushType = iota
 	PushTypeDelete
 	PushTypePatch
+
+	pingPeriod = (pongWait * 9) / 10
+	pongWait   = 60 * time.Second
+	writeWait  = 10 * time.Second
 )
 
 type websocketClients struct {
@@ -58,27 +63,49 @@ func wsConnect(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	go func() {
+		ticker := time.NewTicker(pingPeriod)
+		defer func() {
+			ticker.Stop()
+			c.Close()
+		}()
+
 		self := wsClients.Register()
 		for {
-			push, success := self.Recv().(pushWaypoint)
-			if !success {
-				break
-			}
+			select {
+			case message, ok := <-self.Read:
+				if !ok {
+					c.WriteMessage(websocket.CloseMessage, []byte{})
+					return
+				}
 
-			err = c.WriteJSON(push)
-			if err != nil {
-				break
+				c.SetWriteDeadline(time.Now().Add(writeWait))
+				push, success := message.(pushWaypoint)
+				if !success {
+					return
+				}
+
+				err = c.WriteJSON(push)
+				if err != nil {
+					return
+				}
+			case <-ticker.C:
+				if err := c.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+					return
+				}
 			}
 		}
-		_ = c.Close()
 	}()
 
-	go func() {
-		for {
-			_, _, err := c.ReadMessage()
-			if err != nil {
-				break
-			}
+	defer c.Close()
+	c.SetReadDeadline(time.Now().Add(pongWait))
+	c.SetPongHandler(func(string) error {
+		c.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+	for {
+		_, _, err := c.ReadMessage()
+		if err != nil {
+			break
 		}
-	}()
+	}
 }
