@@ -1,89 +1,99 @@
 html,
 body {
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
 }
 
 div {
-  cursor: default;
+    cursor: default;
 }
 
 #control,
 #detail,
 #rmenu,
 #edit {
-  position: absolute;
-  padding: 10px;
-  background-color: rgb(28, 28, 28, 0.8);
-  color: #fff;
-  user-select: none;
+    position: absolute;
+    padding: 10px;
+    background-color: rgba(28, 28, 28, 0.8);
+    color: #fff;
+    user-select: none;
 }
 
 #control {
-  top: 0;
-  right: 0;
+    top: 0;
+    right: 0;
 }
 
 #detail {
-  bottom: 0;
-  right: 0;
+    bottom: 0;
+    right: 0;
 }
 
 #rmenu {
-  padding: 0px;
+    padding: 0;
 }
 
 #rmenu > div {
-  padding: 0.5em;
+    padding: 0.5em;
 }
 
 #rmenu > div:hover {
-  background-color: rgba(120, 120, 120, 0.8);
+    background-color: rgba(120, 120, 120, 0.8);
 }
 
 #edit {
-  top: 0;
+    top: 0;
 }
 
 #edit > div {
-  text-align: right;
+    text-align: right;
 }
 
 #edit > .submit {
-  text-align: center;
+    text-align: center;
 }
 
 #edit-color {
-  display: inline-block;
+    display: inline-block;
+}
+
+#ws-status {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 5px;
+    background-color: rgba(28, 28, 28, 0.8);
+    color: #ffffff;
 }
 
 select,
 button,
 input {
-  border: none;
-  background-color: transparent;
-  padding: 0;
-  color: inherit;
-  text-align: inherit;
-  font-size: 100%;
-  font-family: inherit;
-  cursor: default;
-  line-height: inherit;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+    text-align: inherit;
+    font-size: 100%;
+    font-family: inherit;
+    cursor: default;
+    line-height: inherit;
 }
 
 input[type="text"] {
-  border-bottom: 1px solid white;
+    border-bottom: 1px solid white;
 }
 
 .hide {
-  display: none;
+    display: none;
 }
 
 .smail {
-  font-size: smaller;
+    font-size: smaller;
 }
 
 .pickr {
-  display: inline-block;
+    display: inline-block;
 }

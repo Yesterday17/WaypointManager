@@ -86,3 +86,26 @@ function getCurrentChunk(x, z) {
     return [chunkX, chunkZ];
   }
 }
+
+let ws = new WebSocket((document.location.protocol === "http:" ? "ws://" : "wss://") + document.location.host + "/ws");
+setInterval(() => ws.send('ping'), 30000);
+
+ws.onopen = () => {
+  document.getElementById('ws-status-text').innerText = "Connected";
+}
+
+ws.onclose = () => {
+  document.getElementById('ws-status-text').innerText = "Disconnected";
+}
+
+ws.addEventListener('message', (event) => {
+  // console.log(event.data)
+  let msg = JSON.parse(event.data);
+  if (msg.type === 1) {
+    waypoints.map.delete(msg.identifier);
+  } else if (msg.type === 0 || msg.type === 2) {
+    msg.waypoint.identifier = (msg.waypoint.x >> 4).toString() + "/" + (msg.waypoint.z >> 4).toString();
+    waypoints.map.set(msg.identifier, msg.waypoint);
+  }
+  render();
+})
