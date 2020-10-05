@@ -88,7 +88,7 @@ function getCurrentChunk(x, z) {
 }
 
 let ws = new WebSocket((document.location.protocol === "http:" ? "ws://" : "wss://") + document.location.host + "/ws");
-setInterval(() => ws.send('ping'), 30000);
+// setInterval(() => ws.send('ping'), 30000);
 
 ws.onopen = () => {
   document.getElementById('ws-status-text').innerText = "Connected";
