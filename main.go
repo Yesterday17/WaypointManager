@@ -353,6 +353,15 @@ func main() {
 		})
 	})
 
+	// Options
+	router.OPTIONS("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, DELETE, GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Waypoint-Auth, Waypoint-Identifier")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+		w.WriteHeader(200)
+	})
+
 	// Listen websocket
 	router.GET("/ws", wsConnect)
 
