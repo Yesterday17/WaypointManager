@@ -138,11 +138,12 @@ func GenWaypointByForm(f url.Values) (Waypoint, error) {
 }
 
 func main() {
-	var auth, port string
+	var auth, port, frontend string
 	var cors bool
 	flag.StringVar(&auth, "auth", "", "Auth key for managing waypoints.")
 	flag.StringVar(&port, "port", "8102", "Port that WaypointManger listen.")
 	flag.BoolVar(&cors, "cors", true, "Whether allow COR requests.")
+	flag.StringVar(&frontend, "frontend", "", "Frontend site to redirect.")
 	flag.Parse()
 
 	if auth == "" {
@@ -355,7 +356,9 @@ func main() {
 
 	// Options
 	router.OPTIONS("/dimension/:dim", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		if cors {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, DELETE, GET")
 		w.Header().Set("Access-Control-Allow-Headers", "Waypoint-Auth, Waypoint-Identifier")
 		w.Header().Set("Access-Control-Max-Age", "86400")
@@ -365,7 +368,15 @@ func main() {
 	// Listen websocket
 	router.GET("/ws", wsConnect)
 
-	router.NotFound = http.FileServer(http.Dir(StaticFolder))
+	if frontend == "" || !cors {
+		// No frontend host provided or cors is disabled
+		router.NotFound = http.FileServer(http.Dir(StaticFolder))
+	} else {
+		router.NotFound = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			request.URL.Host = frontend
+			http.Redirect(writer, request, request.URL.String(), 301)
+		})
+	}
 
 	fmt.Println("Server listening on :" + port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
